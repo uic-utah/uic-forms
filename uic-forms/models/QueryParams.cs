@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace uic_forms.models
@@ -15,6 +16,7 @@ namespace uic_forms.models
         }
 
         internal int WellClass { get; set; }
+        public DateTime? StartDate { get; set; }
         internal IEnumerable<string> AuthActionTypes { get; set; }
         internal IEnumerable<string> AuthTypes { get; set; }
         public IEnumerable<string> ViolationTypes { get; set; }

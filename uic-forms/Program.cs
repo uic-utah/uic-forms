@@ -265,6 +265,13 @@ namespace uic_forms
                         {
                             EnforcementTypes = new[] {"INF", "TOA", "OTR"}
                         }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIIA_1", new QueryParams(1), sevenOne.GetWellsReturnedToCompliance),
+                        new InputMonad("VIIB_1", new QueryParams(1)
+                        {
+                            StartDate = options.StartDate
+                        },
+                        sevenOne.GetWellsReturnedToCompliance),
+                        new InputMonad("VIII_1", new QueryParams(1), sevenOne.GetContaminationViolations),
                     };
 
                     formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });

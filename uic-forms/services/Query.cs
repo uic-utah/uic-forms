@@ -198,6 +198,38 @@ namespace uic_forms.services
             return _connection.QueryFirstOrDefault<int>(query, (object)vars);
         }
 
+        public int GetWellsReturnedToCompliance(QueryParams options)
+        {
+            const string query = "SELECT COUNT(UICWell_evw.OBJECTID) " +
+                                 "FROM UICViolation_evw " +
+                                 "INNER JOIN UICWell_evw " +
+                                 "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
+                                 "WHERE(UICWell_evw.WellClass = @wellClass) " +
+                                 "AND (UICViolation_evw.ReturnToComplianceDate BETWEEN @start AND @end) ";
+
+            return _connection.QueryFirstOrDefault<int>(query, new
+            {
+                wellClass = options.WellClass,
+                start = options.StartDate ?? _endDate - TimeSpan.FromDays(30),
+                end = _endDate
+            });
+        }
+
+        public int GetContaminationViolations(QueryParams options)
+        {
+            const string query = "SELECT COUNT(UICViolation_evw.OBJECTID) " +
+                                 "FROM UICWell_evw " +
+                                 "INNER JOIN UICViolation_evw " +
+                                 "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
+                                 "WHERE UICWell_evw.WellClass = @wellClass " +
+                                 "AND UICViolation_evw.USDWContamination = 'Yes' " +
+                                 "AND UICViolation_evw.ViolationDate >= @start";
+
+            return _connection.QueryFirstOrDefault<int>(query, new
+            {
+                wellClass = options.WellClass,
+                start = _startDate
+            });
         }
     }
 }
