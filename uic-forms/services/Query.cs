@@ -68,9 +68,8 @@ namespace uic_forms.services
             query += "AND UICAuthorizationAction_evw.AuthorizationActionDate BETWEEN @start AND @end";
 
             var variables = (object) vars;
-            var count = _connection.Query<int>(query, variables);
 
-            return count.FirstOrDefault();
+            return _connection.QueryFirstOrDefault<int>(query, variables);
         }
 
         public int GetWellPermitCount(QueryParams options)
@@ -114,9 +113,8 @@ namespace uic_forms.services
             query += "AND UICAuthorizationAction_evw.AuthorizationActionDate BETWEEN @start AND @end";
 
             var variables = (object) vars;
-            var count = _connection.Query<int>(query, variables);
 
-            return count.FirstOrDefault();
+            return _connection.QueryFirstOrDefault<int>(query, variables);
         }
 
         public int GetWellViolationCount(QueryParams options)
@@ -128,13 +126,11 @@ namespace uic_forms.services
                                  "WHERE UICViolation_evw.ViolationDate >= @start " +
                                  "AND UICWell_evw.WellClass = @wellClass";
 
-            var count = _connection.Query<int>(query, new
+            return _connection.QueryFirstOrDefault<int>(query, new
             {
                 start = _startDate,
                 wellClass = options.WellClass
             });
-
-            return count.FirstOrDefault();
         }
 
         public int GetViolationCount(QueryParams options)
@@ -167,10 +163,7 @@ namespace uic_forms.services
                 vars.violationTypes = types;
             }
 
-            var count = _connection.Query<int>(query, (object)vars);
-
-            return count.FirstOrDefault();
-
+            return _connection.QueryFirstOrDefault<int>(query, (object)vars);
         }
 
         public int GetWellsWithEnforcements(QueryParams options)
@@ -202,9 +195,9 @@ namespace uic_forms.services
                 vars.enforcementType = types;
             }
 
-            var count = _connection.Query<int>(query, (object)vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object)vars);
+        }
 
-            return count.FirstOrDefault();
         }
     }
 }
