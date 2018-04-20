@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace uic_forms.services
             _connection = new SqlConnection("Data Source=udeq.agrc.utah.gov\\mspd14;" +
                                             "Initial Catalog=UDEQ;" +
                                             "Persist Security Info=True;" +
+                                            $"User ID={ConfigurationManager.AppSettings["username"]};" +
+                                            $"Password={ConfigurationManager.AppSettings["password"]}");
         }
 
         public void Dispose()
