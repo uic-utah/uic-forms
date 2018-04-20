@@ -60,17 +60,12 @@ namespace uic_forms
 
             debug.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
 
-            var form75201 = Path.Combine(options.TemplateLocation, "7520-1.pdf");
-            var form75201Output = Path.Combine(options.OutputPath, $"7520-1_{DateTime.Now:MM-dd-yyyy}.pdf");
-
-            var form75202a = Path.Combine(options.TemplateLocation, "7520-2a.pdf");
-            var form75202aOutput = Path.Combine(options.OutputPath, $"7520-2a_{DateTime.Now:MM-dd-yyyy}.pdf");
-
             debug.Write("Connecting to UDEQ...");
             using (var sevenOne = new Querier(options.StartDate, options.EndDate))
             {
+                var formPaths = GetFormLocations(options, "7520-1");
                 debug.AlwaysWrite("Loading template for the 7520-1 form...");
-                using (var file = new FileStream(form75201, FileMode.Open, FileAccess.Read))
+                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
                 {
                     var fields = document.AcroForm.Fields;
@@ -197,12 +192,14 @@ namespace uic_forms
                     //                SetField("VIIIC4_5", sevenOne.VIIIC45(), fields);
 
                     // Output the path for manual verification of result
-                    debug.AlwaysWrite("Saving 7520-1 form to {0}", form75201Output);
+                    debug.AlwaysWrite("Saving 7520-1 form to {0}", formPaths.Item2);
 
-                    document.Save(form75201Output);
+                    document.Save(formPaths.Item2);
                 }
 
-                using (var file = new FileStream(form75202a, FileMode.Open, FileAccess.Read))
+                formPaths = GetFormLocations(options, "7520-2a");
+
+                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
                 {
                     var fields = document.AcroForm.Fields;
@@ -273,14 +270,22 @@ namespace uic_forms
 
                     formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });
 
-                    debug.AlwaysWrite("Saving 7520-2a form to {0}", form75202aOutput);
+                    debug.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
 
-                    document.Save(form75202aOutput);
+                    document.Save(formPaths.Item2);
                 }
             }
 
             debug.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadKey();
+        }
+
+        private static Tuple<string, string> GetFormLocations(CliOptions options, string formNumber)
+        {
+            var template = Path.Combine(options.TemplateLocation, $"{formNumber}.pdf");
+            var outputLocation = Path.Combine(options.OutputPath, $"{formNumber}_{DateTime.Now:MM-dd-yyyy}.pdf");
+
+            return new Tuple<string, string>(template, outputLocation);
         }
 
         private static void EnableUpdates(PdfDictionary form)
