@@ -72,10 +72,7 @@ namespace uic_forms
 
                     EnableUpdates(document.AcroForm);
 
-                    SetField("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-                    SetField("DateSigned", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-                    SetField("ReportingFromDate", options.StartDate.ToString("MMM dd, yyyy"), fields);
-                    SetField("ReportingToDate", options.EndDate.ToString("MMM dd, yyyy"), fields);
+                    SetHeader(fields, options);
 
                     SetField("VIA_1E", "NA", fields);
                     SetField("VIB_1E", "NA", fields);
@@ -206,6 +203,8 @@ namespace uic_forms
 
                     EnableUpdates(document.AcroForm);
 
+                    SetHeader(fields, options);
+
                     var formInfo = new List<InputMonad>
                     {
                         new InputMonad("VA_1", new QueryParams(1), sevenOne.GetWellViolationCount),
@@ -278,6 +277,14 @@ namespace uic_forms
 
             debug.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadKey();
+        }
+
+        private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)
+        {
+            SetField("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            SetField("DateSigned", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            SetField("ReportingFromDate", options.StartDate.ToString("MMM dd, yyyy"), fields);
+            SetField("ReportingToDate", options.EndDate.ToString("MMM dd, yyyy"), fields);
         }
 
         private static Tuple<string, string> GetFormLocations(CliOptions options, string formNumber)
