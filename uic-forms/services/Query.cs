@@ -40,35 +40,37 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = "SELECT COUNT(UICAuthorization_evw.OBJECTID) " +
-                        "FROM UICWell_evw INNER JOIN " +
-                        "UICAuthorization_evw ON UICAuthorization_evw.GUID = UICWell_evw.Authorization_FK INNER JOIN " +
-                        "UICAuthorizationAction_evw ON UICAuthorization_evw.GUID = UICAuthorizationAction_evw.Authorization_FK " +
-                        "WHERE UICWell_evw.WellClass = @wellClass ";
+            var query = "SELECT COUNT(DISTINCT(Permit_view.GUID)) " +
+                        "FROM Well_view " +
+                        "INNER JOIN Permit_view " +
+                        "ON Permit_view.GUID = Well_view.Authorization_FK " +
+                        "INNER JOIN Action_view " +
+                        "ON Permit_view.GUID = Action_view.Authorization_FK " +
+                        "WHERE Well_view.WellClass = @wellClass ";
 
             if (actionTypes.Length == 1)
             {
-                query += "AND UICAuthorizationAction_evw.AuthorizationActionType = @actionCodes ";
+                query += "AND Action_view.AuthorizationActionType = @actionCodes ";
                 vars.actionCodes = actionTypes[0];
             }
             else if (actionTypes.Length > 1)
             {
-                query += "AND UICAuthorizationAction_evw.AuthorizationActionType in @actionCodes ";
+                query += "AND Action_view.AuthorizationActionType in @actionCodes ";
                 vars.actionCodes = actionTypes;
             }
 
             if (types.Length == 1)
             {
-                query += "AND UICAuthorization_evw.AuthorizationType = @authTypes ";
+                query += "AND Permit_view.AuthorizationType = @authTypes ";
                 vars.authTypes = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND UICAuthorization_evw.AuthorizationType in @authTypes ";
+                query += "AND Permit_view.AuthorizationType in @authTypes ";
                 vars.authTypes = types;
             }
 
-            query += "AND UICAuthorizationAction_evw.AuthorizationActionDate BETWEEN @start AND @end";
+            query += "AND Action_view.AuthorizationActionDate BETWEEN @start AND @end";
 
             var variables = (object) vars;
 
@@ -85,35 +87,35 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = "SELECT COUNT(UICWell_evw.WellClass) " +
-                        "FROM UICAuthorization_evw INNER JOIN " +
-                        "UICWell_evw ON UICAuthorization_evw.GUID = UICWell_evw.Authorization_FK INNER JOIN " +
-                        "UICAuthorizationAction_evw ON UICAuthorization_evw.GUID = UICAuthorizationAction_evw.Authorization_FK " +
-                        "WHERE UICWell_evw.WellClass = @wellClass ";
+            var query = "SELECT COUNT(Well_view.WellClass) " +
+                        "FROM Permit_view INNER JOIN " +
+                        "Well_view ON Permit_view.GUID = Well_view.Authorization_FK INNER JOIN " +
+                        "Action_view ON Permit_view.GUID = Action_view.Authorization_FK " +
+                        "WHERE Well_view.WellClass = @wellClass ";
 
             if (actionTypes.Length == 1)
             {
-                query += "AND UICAuthorizationAction_evw.AuthorizationActionType = @actionCodes ";
+                query += "AND Action_view.AuthorizationActionType = @actionCodes ";
                 vars.actionCodes = actionTypes[0];
             }
             else if (actionTypes.Length > 1)
             {
-                query += "AND UICAuthorizationAction_evw.AuthorizationActionType in @actionCodes ";
+                query += "AND Action_view.AuthorizationActionType in @actionCodes ";
                 vars.actionCodes = actionTypes;
             }
 
             if (types.Length == 1)
             {
-                query += "AND UICAuthorization_evw.AuthorizationType = @authTypes ";
+                query += "AND Permit_view.AuthorizationType = @authTypes ";
                 vars.authTypes = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND UICAuthorization_evw.AuthorizationType in @authTypes ";
+                query += "AND Permit_view.AuthorizationType in @authTypes ";
                 vars.authTypes = types;
             }
 
-            query += "AND UICAuthorizationAction_evw.AuthorizationActionDate BETWEEN @start AND @end";
+            query += "AND Action_view.AuthorizationActionDate BETWEEN @start AND @end";
 
             var variables = (object) vars;
 
@@ -122,12 +124,12 @@ namespace uic_forms.services
 
         public int GetWellViolationCount(QueryParams options)
         {
-            const string query = "SELECT count(UICWell_evw.OBJECTID) " +
-                                 "FROM UICViolation_evw " +
-                                 "INNER JOIN UICWell_evw " +
-                                 "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
-                                 "WHERE UICViolation_evw.ViolationDate >= @start " +
-                                 "AND UICWell_evw.WellClass = @wellClass";
+            const string query = "SELECT count(Well_view.OBJECTID) " +
+                                 "FROM Violation_view " +
+                                 "INNER JOIN Well_view " +
+                                 "ON Violation_view.Well_FK = Well_view.GUID " +
+                                 "WHERE Violation_view.ViolationDate >= @start " +
+                                 "AND Well_view.WellClass = @wellClass";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
@@ -148,21 +150,21 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
 
-            var query = "SELECT count(UICViolation_evw.ViolationType) " +
-                        "FROM UICViolation_evw " +
-                        "INNER JOIN UICWell_evw " +
-                        "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
-                        "WHERE UICViolation_evw.ViolationDate >= @start " +
-                        "AND UICWell_evw.WellClass = @wellClass ";
+            var query = "SELECT count(Violation_view.ViolationType) " +
+                        "FROM Violation_view " +
+                        "INNER JOIN Well_view " +
+                        "ON Violation_view.Well_FK = Well_view.GUID " +
+                        "WHERE Violation_view.ViolationDate >= @start " +
+                        "AND Well_view.WellClass = @wellClass ";
 
             if (types.Length == 1)
             {
-                query += "AND UICViolation_evw.ViolationType = @violationTypes";
+                query += "AND Violation_view.ViolationType = @violationTypes";
                 vars.violationTypes = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND UICViolation_evw.ViolationType in @violationTypes";
+                query += "AND Violation_view.ViolationType in @violationTypes";
                 vars.violationTypes = types;
             }
 
@@ -176,25 +178,25 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = "SELECT COUNT(UICWell_evw.OBJECTID) " +
-                        "FROM UICViolationToEnforcement_evw " +
-                        "INNER JOIN UICEnforcement_evw " +
-                        "ON UICViolationToEnforcement_evw.EnforcementGUID = UICEnforcement_evw.GUID " +
-                        "INNER JOIN UICViolation_evw " +
-                        "ON UICViolationToEnforcement_evw.ViolationGUID = UICViolation_evw.GUID " +
-                        "INNER JOIN UICWell_evw " +
-                        "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
-                        "WHERE UICEnforcement_evw.EnforcementDate >= @start " +
-                        "AND UICWell_evw.WellClass = @wellClass ";
+            var query = "SELECT COUNT(Well_view.OBJECTID) " +
+                        "FROM ViolationEnforcement_lookup " +
+                        "INNER JOIN Enforcement_view " +
+                        "ON ViolationEnforcement_lookup.EnforcementGUID = Enforcement_view.GUID " +
+                        "INNER JOIN Violation_view " +
+                        "ON ViolationEnforcement_lookup.ViolationGUID = Violation_view.GUID " +
+                        "INNER JOIN Well_view " +
+                        "ON Violation_view.Well_FK = Well_view.GUID " +
+                        "WHERE Enforcement_view.EnforcementDate >= @start " +
+                        "AND Well_view.WellClass = @wellClass ";
 
             if (types.Length == 1)
             {
-                query += "AND UICEnforcement_evw.EnforcementType = @enforcementType";
+                query += "AND Enforcement_view.EnforcementType = @enforcementType";
                 vars.enforcementType = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND UICEnforcement_evw.EnforcementType in @enforcementType";
+                query += "AND Enforcement_view.EnforcementType in @enforcementType";
                 vars.enforcementType = types;
             }
 
@@ -203,12 +205,12 @@ namespace uic_forms.services
 
         public int GetWellsReturnedToCompliance(QueryParams options)
         {
-            const string query = "SELECT COUNT(UICWell_evw.OBJECTID) " +
-                                 "FROM UICViolation_evw " +
-                                 "INNER JOIN UICWell_evw " +
-                                 "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
-                                 "WHERE(UICWell_evw.WellClass = @wellClass) " +
-                                 "AND (UICViolation_evw.ReturnToComplianceDate BETWEEN @start AND @end) ";
+            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
+                                 "FROM Violation_view " +
+                                 "INNER JOIN Well_view " +
+                                 "ON Violation_view.Well_FK = Well_view.GUID " +
+                                 "WHERE(Well_view.WellClass = @wellClass) " +
+                                 "AND (Violation_view.ReturnToComplianceDate BETWEEN @start AND @end) ";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
@@ -220,13 +222,13 @@ namespace uic_forms.services
 
         public int GetContaminationViolations(QueryParams options)
         {
-            const string query = "SELECT COUNT(UICViolation_evw.OBJECTID) " +
-                                 "FROM UICWell_evw " +
-                                 "INNER JOIN UICViolation_evw " +
-                                 "ON UICViolation_evw.Well_FK = UICWell_evw.GUID " +
-                                 "WHERE UICWell_evw.WellClass = @wellClass " +
-                                 "AND UICViolation_evw.USDWContamination = 'Yes' " +
-                                 "AND UICViolation_evw.ViolationDate >= @start";
+            const string query = "SELECT COUNT(Violation_view.OBJECTID) " +
+                                 "FROM Well_view " +
+                                 "INNER JOIN Violation_view " +
+                                 "ON Violation_view.Well_FK = Well_view.GUID " +
+                                 "WHERE Well_view.WellClass = @wellClass " +
+                                 "AND Violation_view.USDWContamination = 'Yes' " +
+                                 "AND Violation_view.ViolationDate >= @start";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
