@@ -21,5 +21,6 @@ namespace uic_forms.models
         internal IEnumerable<string> AuthTypes { get; set; }
         public IEnumerable<string> ViolationTypes { get; set; }
         public IEnumerable<string> EnforcementTypes { get; set; }
+        public bool Snc { get; set; }
     }
 }

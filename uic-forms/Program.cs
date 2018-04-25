@@ -65,6 +65,7 @@ namespace uic_forms
             {
                 var formPaths = GetFormLocations(options, "7520-1");
                 debug.AlwaysWrite("Loading template for the 7520-1 form...");
+
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
                 {
@@ -195,6 +196,7 @@ namespace uic_forms
                 }
 
                 formPaths = GetFormLocations(options, "7520-2a");
+                debug.AlwaysWrite("Loading template for the 7520-2a form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -277,6 +279,119 @@ namespace uic_forms
                     formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });
 
                     debug.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
+
+                    document.Save(formPaths.Item2);
+                }
+
+                formPaths = GetFormLocations(options, "7520-2b");
+                debug.AlwaysWrite("Loading template for the 7520-2b form...");
+
+                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
+                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
+                {
+                    var fields = document.AcroForm.Fields;
+
+                    EnableUpdates(document.AcroForm);
+
+                    SetHeader(fields, options);
+
+                    SetField("VIB7_1", "NA", fields);
+
+                    var formInfo = new List<InputMonad>
+                    {
+                        new InputMonad("VA_1", new QueryParams(1), sevenOne.SncViolations),
+                        new InputMonad("VB1_1", new QueryParams(1)
+                        {
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB2_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"MI", "MO"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB3_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"IP"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB4_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"PA"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB5_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"FO"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB6_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"FA"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB7_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"OT"},
+                            Snc = true
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VIA_1", new QueryParams(1)
+                        {
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB1_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"NOV"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB2_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"CGT"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB3_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"DAO", "FAO"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB4_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"CIR"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB5_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"CRR"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB6_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"SHT"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIB8_1", new QueryParams(1)
+                        {
+                            EnforcementTypes = new[] {"INF", "TOA", "OTR"},
+                            Snc = true
+                        }, sevenOne.GetWellsWithEnforcements),
+                        new InputMonad("VIIA_1", new QueryParams(1)
+                        {
+                            Snc = true
+                        }, sevenOne.GetWellsReturnedToCompliance),
+                        new InputMonad("VIIB_1", new QueryParams(1)
+                        {
+                            StartDate = options.StartDate,
+                            Snc = true
+                        },
+                        sevenOne.GetWellsReturnedToCompliance),
+                        new InputMonad("VIII_1", new QueryParams(1)
+                        {
+                            Snc = true
+                        }, sevenOne.GetContaminationViolations),
+                    };
+
+                    formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });
+
+                    debug.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }

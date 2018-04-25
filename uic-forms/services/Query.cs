@@ -140,17 +140,13 @@ namespace uic_forms.services
 
         public int GetViolationCount(QueryParams options)
         {
-            if (!options.ViolationTypes.Any())
-            {
-                throw new ArgumentException("options.ViolationTypes cannot be epty");
-            }
             var types = options.ViolationTypes as string[] ?? options.ViolationTypes.ToArray();
 
             dynamic vars = new ExpandoObject();
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
 
-            var query = "SELECT count(Violation_view.ViolationType) " +
+            var query = "SELECT COUNT(DISTINCT(Violation_view.GUID)) " +
                         "FROM Violation_view " +
                         "INNER JOIN Well_view " +
                         "ON Violation_view.Well_FK = Well_view.GUID " +
@@ -159,13 +155,19 @@ namespace uic_forms.services
 
             if (types.Length == 1)
             {
-                query += "AND Violation_view.ViolationType = @violationTypes";
+                query += "AND Violation_view.ViolationType = @violationTypes ";
                 vars.violationTypes = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND Violation_view.ViolationType in @violationTypes";
+                query += "AND Violation_view.ViolationType in @violationTypes ";
                 vars.violationTypes = types;
+            }
+
+            if (options.Snc)
+            {
+                query += "AND Violation_view.SignificantNonCompliance = @snc ";
+                vars.snc = "Y";
             }
 
             return _connection.QueryFirstOrDefault<int>(query, (object)vars);
@@ -179,11 +181,11 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
 
             var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM ViolationEnforcement_lookup " +
+                        "FROM UICVIOLATIONTOENFORCEMENT " +
                         "INNER JOIN Enforcement_view " +
-                        "ON ViolationEnforcement_lookup.EnforcementGUID = Enforcement_view.GUID " +
+                        "ON UICVIOLATIONTOENFORCEMENT.EnforcementGUID = Enforcement_view.GUID " +
                         "INNER JOIN Violation_view " +
-                        "ON ViolationEnforcement_lookup.ViolationGUID = Violation_view.GUID " +
+                        "ON UICVIOLATIONTOENFORCEMENT.ViolationGUID = Violation_view.GUID " +
                         "INNER JOIN Well_view " +
                         "ON Violation_view.Well_FK = Well_view.GUID " +
                         "WHERE Enforcement_view.EnforcementDate >= @start " +
@@ -191,49 +193,86 @@ namespace uic_forms.services
 
             if (types.Length == 1)
             {
-                query += "AND Enforcement_view.EnforcementType = @enforcementType";
+                query += "AND Enforcement_view.EnforcementType = @enforcementType ";
                 vars.enforcementType = types[0];
             }
             else if (types.Length > 1)
             {
-                query += "AND Enforcement_view.EnforcementType in @enforcementType";
+                query += "AND Enforcement_view.EnforcementType in @enforcementType ";
                 vars.enforcementType = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object)vars);
+            if (options.Snc)
+            {
+                query += "AND Violation_view.SignificantNonCompliance = @snc ";
+                vars.snc = "Y";
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
         }
 
         public int GetWellsReturnedToCompliance(QueryParams options)
         {
-            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
-                                 "FROM Violation_view " +
-                                 "INNER JOIN Well_view " +
-                                 "ON Violation_view.Well_FK = Well_view.GUID " +
-                                 "WHERE(Well_view.WellClass = @wellClass) " +
-                                 "AND (Violation_view.ReturnToComplianceDate BETWEEN @start AND @end) ";
+            var query = "SELECT COUNT(Well_view.OBJECTID) " +
+                        "FROM Violation_view " +
+                        "INNER JOIN Well_view " +
+                        "ON Violation_view.Well_FK = Well_view.GUID " +
+                        "WHERE(Well_view.WellClass = @wellClass) " +
+                        "AND (Violation_view.ReturnToComplianceDate BETWEEN @start AND @end) ";
 
-            return _connection.QueryFirstOrDefault<int>(query, new
+            dynamic vars = new ExpandoObject();
+            vars.wellClass = options.WellClass;
+            vars.start = options.StartDate ?? _endDate - TimeSpan.FromDays(30);
+            vars.end = _endDate;
+
+            if (options.Snc)
             {
-                wellClass = options.WellClass,
-                start = options.StartDate ?? _endDate - TimeSpan.FromDays(30),
-                end = _endDate
-            });
+                query += "AND Violation_view.SignificantNonCompliance = @snc ";
+                vars.snc = "Y";
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
         }
 
         public int GetContaminationViolations(QueryParams options)
         {
-            const string query = "SELECT COUNT(Violation_view.OBJECTID) " +
+            dynamic vars = new ExpandoObject();
+            vars.wellClass = options.WellClass;
+            vars.start = _startDate;
+            vars.contamination = "Y";
+
+            var query = "SELECT COUNT(Violation_view.OBJECTID) " +
+                        "FROM Well_view " +
+                        "INNER JOIN Violation_view " +
+                        "ON Violation_view.Well_FK = Well_view.GUID " +
+                        "WHERE Well_view.WellClass = @wellClass " +
+                        "AND Violation_view.USDWContamination = @contamination " +
+                        "AND Violation_view.ViolationDate >= @start ";
+
+            if (options.Snc)
+            {
+                query += "AND Violation_view.SignificantNonCompliance = @snc ";
+                vars.snc = "Y";
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+        }
+
+        public int SncViolations(QueryParams options)
+        {
+            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
                                  "FROM Well_view " +
                                  "INNER JOIN Violation_view " +
                                  "ON Violation_view.Well_FK = Well_view.GUID " +
                                  "WHERE Well_view.WellClass = @wellClass " +
-                                 "AND Violation_view.USDWContamination = 'Yes' " +
+                                 "AND Violation_view.SignificantNonCompliance = @compliance " +
                                  "AND Violation_view.ViolationDate >= @start";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
                 wellClass = options.WellClass,
-                start = _startDate
+                start = _startDate,
+                compliance = "Y"
             });
         }
     }
