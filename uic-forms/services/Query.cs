@@ -181,11 +181,11 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
 
             var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM UICVIOLATIONTOENFORCEMENT " +
+                        "FROM UICViolationToEnforcement_evw " +
                         "INNER JOIN Enforcement_view " +
-                        "ON UICVIOLATIONTOENFORCEMENT.EnforcementGUID = Enforcement_view.GUID " +
+                        "ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID " +
                         "INNER JOIN Violation_view " +
-                        "ON UICVIOLATIONTOENFORCEMENT.ViolationGUID = Violation_view.GUID " +
+                        "ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID " +
                         "INNER JOIN Well_view " +
                         "ON Violation_view.Well_FK = Well_view.GUID " +
                         "WHERE Enforcement_view.EnforcementDate >= @start " +
@@ -275,5 +275,123 @@ namespace uic_forms.services
                 compliance = "Y"
             });
         }
+
+        public int GetWellsInspected(QueryParams options)
+        {
+            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
+                                 "FROM Well_view " +
+                                 "INNER JOIN Inspection_view " +
+                                 "ON Well_view.GUID = Inspection_view.Well_FK " +
+                                 "WHERE Well_view.WellClass = @wellClass AND " +
+                                 "Inspection_view.InspectionDate > @start AND " +
+                                 "Well_view.Facility_FK is NULL";
+
+            return _connection.QueryFirstOrDefault<int>(query, new
+            {
+                wellClass = options.WellClass,
+                start = _startDate
+            });
+        }
+
+        public int GetInspections(QueryParams options)
+        {
+            var types = options.InspectionType as string[] ?? options.InspectionType.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+
+            var query = "SELECT COUNT(DISTINCT(Inspection_view.OBJECTID)) " +
+                        "FROM Inspection_view " +
+                        "INNER JOIN Well_view " +
+                        "ON Well_view.GUID = Inspection_view.Well_FK " +
+                        "WHERE Well_view.WellClass = @wellClass AND " +
+                        "Inspection_view.InspectionDate > @start AND " +
+                        "Well_view.Facility_FK is NULL ";
+
+            if (types.Length == 1)
+            {
+                query += "AND Inspection_view.InspectionType = @inspectionType ";
+                vars.inspectionType = types[0];
+            }
+            else if (types.Length > 1)
+            {
+                query += "AND Inspection_view.InspectionType in @inspectionType ";
+                vars.inspectionType = types;
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+        }
+
+        public int GetMechIntegrityWells(QueryParams options)
+        {
+            var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
+            var results = options.MitResult as string[] ?? options.MitResult.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+
+            var query = "SELECT COUNT(Well_view.OBJECTID) " +
+                        "FROM Well_view " +
+                        "INNER JOIN Mit_view " +
+                        "ON Well_view.GUID = Mit_view.Well_FK " +
+                        "WHERE Well_view.WellClass = @wellClass AND " +
+                        "Mit_view.MITDate > @start ";
+
+            if (types.Length == 1)
+            {
+                query += "AND Mit_view.MITType = @mitType ";
+                vars.mitType = types[0];
+            }
+            else if (types.Length > 1)
+            {
+                query += "AND Mit_view.mitType in @mitType ";
+                vars.mitType = types;
+            }
+
+            if (results.Length == 1)
+            {
+                query += "AND Mit_view.MITResult = @mitResult ";
+                vars.mitResult = types[0];
+            }
+            else if (results.Length > 1)
+            {
+                query += "AND Mit_view.MITResult in @mitResult ";
+                vars.mitResult = types;
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+        }
+
+        public int GetRemedialWells(QueryParams options)
+        {
+            var types = options.RemedialAction as string[] ?? options.RemedialAction.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+
+            var query = "SELECT COUNT(Well_view.OBJECTID) " +
+                        "FROM Well_view " +
+                        "INNER JOIN Mit_view " +
+                        "ON Well_view.GUID = Mit_view.Well_FK " +
+                        "WHERE Well_view.WellClass = @wellClass AND " +
+                        "Mit_view.MITRemActDate > @start ";
+
+            if (types.Length == 1)
+            {
+                query += "AND Mit_view.MITRemediationAction = @action ";
+                vars.action = types[0];
+            }
+            else if (types.Length > 1)
+            {
+                query += "AND Mit_view.MITRemediationAction in @action ";
+                vars.action = types;
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+        }
+
     }
 }

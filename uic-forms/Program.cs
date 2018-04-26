@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -392,6 +394,158 @@ namespace uic_forms
                     formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });
 
                     debug.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);
+
+                    document.Save(formPaths.Item2);
+                }
+                
+                formPaths = GetFormLocations(options, "7520-3");
+                debug.AlwaysWrite("Loading template for the 7520-3 form...");
+
+                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
+                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
+                {
+                    var fields = document.AcroForm.Fields;
+
+                    EnableUpdates(document.AcroForm);
+
+                    SetHeader(fields, options);
+
+                    var na = new List<string>
+                    {
+                        "VIB_1", "VIBf_1", "VIB_3", "VIBf_3", "VIA_4", "VIB_4", "VIBf_4", "VIC1p_4", "VIC2p_4",
+                        "VIC3p_4", "VIC4p_4", "VIC1f_4", "VIC2f_4", "VIC3f_4", "VIC4f_4", "VID1p_4", "VID2p_4",
+                        "VID3p_4", "VID4p_4", "VID1f_4", "VID2f_4", "VID3f_4", "VID4f_4", "VIIA_4", "VIIB1_4",
+                        "VIIB2_4", "VIIB3_4", "VIIB4_4", "VIB_5", "VIBf_5"
+                    };
+
+                    na.ForEach(field => { SetField(field, "NA", fields); });
+
+                    var formInfo = new List<InputMonad>
+                    {
+                        new InputMonad("VA_1", new QueryParams(1), sevenOne.GetWellsInspected),
+                        new InputMonad("VB1_1", new QueryParams(1)
+                        {
+                            InspectionType = new[] {"MI"}
+                        }, sevenOne.GetInspections),
+                        new InputMonad("VB2_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"EC"}
+                        }, sevenOne.GetInspections),
+                        new InputMonad("VB3_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"CO"}
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB4_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"WP"}
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VB5_1", new QueryParams(1)
+                        {
+                            ViolationTypes = new[] {"RP"}
+                        }, sevenOne.GetViolationCount),
+                        new InputMonad("VIA_1", new QueryParams(1), sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC1p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"AP"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC1f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"AP"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC2p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CT"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC2f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CT"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC3p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"MR"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC3f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"MR"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC4p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIC4f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID1p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CR"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID1f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CR"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID2p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"TN"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID2f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"TN"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID3p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"RC"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID3f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"RC"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID4p_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
+                            MitResult = new[] {"PS"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VID4f_1", new QueryParams(1)
+                        {
+                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
+                            MitResult = new[] {"FU", "FP", "FA"}
+                        }, sevenOne.GetMechIntegrityWells),
+                        new InputMonad("VIIA_1", new QueryParams(1), sevenOne.GetRemedialWells),
+                        new InputMonad("VIIB1_1", new QueryParams(1)
+                        {
+                            RemedialAction = new [] {"CS"}
+                        }, sevenOne.GetRemedialWells),
+                        new InputMonad("VIIB2_1", new QueryParams(1)
+                        {
+                            RemedialAction = new [] {"TR", "PR"}
+                        }, sevenOne.GetRemedialWells),
+                        new InputMonad("VIIB3_1", new QueryParams(1)
+                        {
+                            RemedialAction = new [] {"PA"}
+                        }, sevenOne.GetRemedialWells),
+                        new InputMonad("VIIB4_1", new QueryParams(1)
+                        {
+                            RemedialAction = new [] {"OT"}
+                        }, sevenOne.GetRemedialWells),
+                    };
+
+                    formInfo.ForEach(x => { SetField(x.Id, x.Query(x.Params), fields); });
+
+                    debug.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }

@@ -9,15 +9,26 @@ from os.path import join
 
 import arcpy
 
-sde_file_path = 'C:\\Projects\\GitHub\\uic-7520\\database\\stage.sde'
+arcpy.env.workspace = sde_file_path = 'C:\\Projects\\GitHub\\uic-7520\\database\\stage.sde'
 
 table_to_view = {
-  'UICAuthorization': 'Permit_view',
-  'UICAuthorizationAction': 'Action_view',
-  'UICWell': 'Well_view',
-  'UICViolation': 'Violation_view',
-  'UICViolationToEnforcement': 'ViolationEnforcement_lookup',
+    'UICAuthorization': 'Permit_view',
+    'UICAuthorizationAction': 'Action_view',
+    'UICWell': 'Well_view',
+    'UICEnforcement': 'Enforcement_view',
+    'UICViolation': 'Violation_view',
+    'UICInspection': 'Inspection_view',
+    'UICMIT': 'Mit_view'
 }
+
+#: if you are missing views this is how to create them
+# tables = arcpy.ListTables() + arcpy.ListFeatureClasses()
+# for table in tables:
+#     print('unregistering {}'.format(table))
+#     arcpy.management.UnregisterAsVersioned(table, keep_edit='NO_KEEP_EDIT')
+#
+#     print('registering {}'.format(table))
+#     arcpy.management.RegisterAsVersioned(table)
 
 print('creating versioned views')
 
@@ -29,6 +40,7 @@ for table, view in table_to_view.items():
         continue
 
     print('creating {}...'.format(view))
-    arcpy.management.CreateVersionedView(join(sde_file_path, table), view)
+    table = join(sde_file_path, table)
+    arcpy.management.CreateVersionedView(table, view)
 
 print('finished')
