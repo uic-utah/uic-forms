@@ -57,8 +57,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="models\CliOptions.cs" />
+    <Compile Include="models\Contact.cs" />
+    <Compile Include="models\DomainModel.cs" />
     <Compile Include="models\InputMonad.cs" />
     <Compile Include="models\QueryParams.cs" />
+    <Compile Include="models\ViolationModel.cs" />
+    <Compile Include="models\WellId.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="services\ArgParser.cs" />

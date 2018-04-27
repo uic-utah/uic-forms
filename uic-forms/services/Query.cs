@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Dynamic;
@@ -13,6 +14,7 @@ namespace uic_forms.services
         private readonly SqlConnection _connection;
         private readonly DateTime _endDate;
         private readonly DateTime _startDate;
+        private IEnumerable<DomainModel> _subClassLookup;
 
         public Querier(DateTime startDate, DateTime endDate)
         {
@@ -23,6 +25,8 @@ namespace uic_forms.services
                                             "Persist Security Info=True;" +
                                             $"User ID={ConfigurationManager.AppSettings["username"]};" +
                                             $"Password={ConfigurationManager.AppSettings["password"]}");
+
+            _subClassLookup = GetDomainValuesFor("UICWellSubClassDomain");
         }
 
         public void Dispose()
@@ -393,5 +397,126 @@ namespace uic_forms.services
             return _connection.QueryFirstOrDefault<int>(query, (object) vars);
         }
 
+        public IEnumerable<ViolationModel> GetViolations()
+        {
+            const string query = @"SELECT 
+            Violation_view.Well_FK as wellid,
+            Violation_view.ViolationDate, 
+            Violation_view.SignificantNonCompliance, 
+            Violation_view.ReturnToComplianceDate, 
+            Enforcement_view.EnforcementDate, 
+            Enforcement_view.EnforcementType
+                FROM
+            Enforcement_view
+                INNER JOIN UICViolationToEnforcement_evw ON Enforcement_view.GUID = UICViolationToEnforcement_evw.EnforcementGUID
+                FULL JOIN Violation_view ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
+            WHERE
+            Violation_view.SignificantNonCompliance = @yes";
+
+            return _connection.Query<ViolationModel>(query, new
+            {
+                yes = 'Y'
+            });
+        }
+
+        public string GetWellSubClass(Guid wellid)
+        {
+            const string query = "SELECT WellSubClass " +
+                                 "FROM Well_view " +
+                                 "WHERE GUID = @wellId";
+
+            var code = _connection.QueryFirstOrDefault<string>(query, new
+            {
+                wellid
+            });
+
+            return _subClassLookup.Single(x => x.Code == code).Value;
+        }
+
+        public Contact GetContactAddress(Guid wellId)
+        {
+            const string query = @"SELECT 
+    ContactName, 
+    ContactMailAddress, 
+    ContactMailCity, 
+    ContactMailState, 
+    ZipCode5, 
+    ZipCode4, 
+    ContactType 
+FROM 
+    UICContact_evw 
+    INNER JOIN UICFacilityToContact_evw ON UICFacilityToContact_evw.ContactGUID = UICContact_evw.GUID 
+    INNER JOIN UICFacility_evw ON UICFacilityToContact_evw.FacilityGUID = UICFacility_evw.GUID 
+WHERE 
+    ContactType in (1, 3, 2) 
+AND
+    UICFacility_evw.GUID = @facilityId";
+
+            var facilityId = GetFacilityFromWell(wellId);
+
+            var contacts = _connection.Query<Contact>(query, new
+            {
+                facilityId = facilityId.ToString().ToUpperInvariant()
+            }).ToList();
+
+            return contacts.FirstOrDefault(x => x.ContactType == 1) ??
+                   contacts.FirstOrDefault(x => x.ContactType == 3) ??
+                   contacts.FirstOrDefault(x => x.ContactType == 2);
+        }
+
+        public Guid GetFacilityFromWell(Guid wellId)
+        {
+            return _connection.QueryFirstOrDefault<Guid>("SELECT Facility_FK " +
+                                                         "FROM Well_view " +
+                                                         "WHERE GUID = @wellId", new
+            {
+                wellId
+            });
+        }
+
+        public IEnumerable<DomainModel> GetDomainValuesFor(string domainName)
+        {
+            const string query = @"SELECT
+	cv_domain.value('DomainName[1]', 'nvarchar(50)') AS 'DomainName',
+	coded_value.value('Code[1]','nvarchar(50)') AS 'Code',
+	coded_value.value('Name[1]','nvarchar(50)') AS 'Value'
+FROM
+	sde.GDB_ITEMS AS items INNER JOIN sde.GDB_ITEMTYPES AS itemtypes ON
+		items.Type = itemtypes.UUID
+CROSS APPLY	
+	items.Definition.nodes('/GPCodedValueDomain2/CodedValues/CodedValue') AS CodedValues(coded_value)
+CROSS APPLY	
+	items.Definition.nodes('/GPCodedValueDomain2') AS CVDomains(cv_domain)
+WHERE 
+	itemtypes.Name = 'Coded Value Domain'";
+
+            var domains = _connection.Query<DomainModel>(query);
+
+            return domains.Where(x => x.DomainName.Equals(domainName.ToUpperInvariant(),
+                                                          StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public string GetWellId(Guid wellId)
+        {
+            var well = _connection.QueryFirstOrDefault<WellId>(@"SELECT 
+            WellId as Id,
+            AuthorizationID,
+            AuthorizationType as code
+                FROM
+            Well_view 
+                FULL JOIN Permit_view ON Permit_view.GUID = Well_view.Authorization_FK
+            WHERE
+                Well_view.GUID = @wellId", new
+            {
+                wellId
+            });
+
+            if (new[] { "IP", "AP", "GP", "EP", "OP"}.Contains(well?.Code))
+            {
+                return well?.AuthorizationId;
+            }
+
+            return well?.Id;
+        }
     }
 }

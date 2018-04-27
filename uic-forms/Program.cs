@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -63,7 +64,7 @@ namespace uic_forms
             debug.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
 
             debug.Write("Connecting to UDEQ...");
-            using (var sevenOne = new Querier(options.StartDate, options.EndDate))
+            using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate))
             {
                 var formPaths = GetFormLocations(options, "7520-1");
                 debug.AlwaysWrite("Loading template for the 7520-1 form...");
@@ -86,32 +87,32 @@ namespace uic_forms
                         new InputMonad("V_1", new QueryParams(1)
                         {
                             AuthActionTypes = new[] {"AI", "AM", "AR"}
-                        }, sevenOne.GetPermitCount),
+                        }, sevenFiveTwenty.GetPermitCount),
                         new InputMonad("VIA_1N", new QueryParams(1)
                         {
                             AuthTypes = new[] {"IP"},
                             AuthActionTypes = new[] {"PI"}
-                        }, sevenOne.GetPermitCount),
+                        }, sevenFiveTwenty.GetPermitCount),
                         new InputMonad("VIB_1N", new QueryParams(1)
                         {
                             AuthTypes = new[] {"AP"},
                             AuthActionTypes = new[] {"PI"}
-                        }, sevenOne.GetPermitCount),
+                        }, sevenFiveTwenty.GetPermitCount),
                         new InputMonad("VIC_1N", new QueryParams(1)
                         {
                             AuthTypes = new[] {"AP"},
                             AuthActionTypes = new[] {"PI"}
-                        }, sevenOne.GetWellPermitCount),
+                        }, sevenFiveTwenty.GetWellPermitCount),
                         new InputMonad("VID_1", new QueryParams(1)
                         {
                             AuthTypes = new[] {"IP", "AP", "GP", "EP", "OP"},
                             AuthActionTypes = new[] {"PT"}
-                        }, sevenOne.GetPermitCount),
+                        }, sevenFiveTwenty.GetPermitCount),
                         new InputMonad("VIE_1", new QueryParams(1)
                         {
                             AuthTypes = new[] {"IP", "AP", "GP", "OP"},
                             AuthActionTypes = new[] {"PM"}
-                        }, sevenOne.GetPermitCount)
+                        }, sevenFiveTwenty.GetPermitCount)
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -211,71 +212,71 @@ namespace uic_forms
 
                     var formInfo = new List<InputMonad>
                     {
-                        new InputMonad("VA_1", new QueryParams(1), sevenOne.GetWellViolationCount),
+                        new InputMonad("VA_1", new QueryParams(1), sevenFiveTwenty.GetWellViolationCount),
                         new InputMonad("VB1_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"UI"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB2_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"MI", "MO"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB3_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"OM"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB4_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"PA"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB5_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"MR"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB6_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"IP", "FO", "FA", "FI", "FR", "OT"}
-                        }, sevenOne.GetViolationCount),
-                        new InputMonad("VIA_1", new QueryParams(1), sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetViolationCount),
+                        new InputMonad("VIA_1", new QueryParams(1), sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB1_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"NOV"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB2_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CGT"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB3_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"DAO", "FAO"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB4_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CIR"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB5_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CRR"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB6_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"SHT"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB7_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"PSE"}
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB8_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"INF", "TOA", "OTR"}
-                        }, sevenOne.GetWellsWithEnforcements),
-                        new InputMonad("VIIA_1", new QueryParams(1), sevenOne.GetWellsReturnedToCompliance),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
+                        new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIIB_1", new QueryParams(1)
                         {
                             StartDate = options.StartDate
                         },
-                        sevenOne.GetWellsReturnedToCompliance),
-                        new InputMonad("VIII_1", new QueryParams(1), sevenOne.GetContaminationViolations),
+                        sevenFiveTwenty.GetWellsReturnedToCompliance),
+                        new InputMonad("VIII_1", new QueryParams(1), sevenFiveTwenty.GetContaminationViolations),
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -301,94 +302,94 @@ namespace uic_forms
 
                     var formInfo = new List<InputMonad>
                     {
-                        new InputMonad("VA_1", new QueryParams(1), sevenOne.SncViolations),
+                        new InputMonad("VA_1", new QueryParams(1), sevenFiveTwenty.SncViolations),
                         new InputMonad("VB1_1", new QueryParams(1)
                         {
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB2_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"MI", "MO"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB3_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"IP"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB4_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"PA"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB5_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"FO"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB6_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"FA"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB7_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"OT"},
                             Snc = true
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VIA_1", new QueryParams(1)
                         {
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB1_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"NOV"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB2_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CGT"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB3_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"DAO", "FAO"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB4_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CIR"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB5_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"CRR"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB6_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"SHT"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIB8_1", new QueryParams(1)
                         {
                             EnforcementTypes = new[] {"INF", "TOA", "OTR"},
                             Snc = true
-                        }, sevenOne.GetWellsWithEnforcements),
+                        }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIIA_1", new QueryParams(1)
                         {
                             Snc = true
-                        }, sevenOne.GetWellsReturnedToCompliance),
+                        }, sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIIB_1", new QueryParams(1)
                         {
                             StartDate = options.StartDate,
                             Snc = true
                         },
-                        sevenOne.GetWellsReturnedToCompliance),
+                        sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIII_1", new QueryParams(1)
                         {
                             Snc = true
-                        }, sevenOne.GetContaminationViolations),
+                        }, sevenFiveTwenty.GetContaminationViolations),
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -422,125 +423,125 @@ namespace uic_forms
 
                     var formInfo = new List<InputMonad>
                     {
-                        new InputMonad("VA_1", new QueryParams(1), sevenOne.GetWellsInspected),
+                        new InputMonad("VA_1", new QueryParams(1), sevenFiveTwenty.GetWellsInspected),
                         new InputMonad("VB1_1", new QueryParams(1)
                         {
                             InspectionType = new[] {"MI"}
-                        }, sevenOne.GetInspections),
+                        }, sevenFiveTwenty.GetInspections),
                         new InputMonad("VB2_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"EC"}
-                        }, sevenOne.GetInspections),
+                        }, sevenFiveTwenty.GetInspections),
                         new InputMonad("VB3_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"CO"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB4_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"WP"}
-                        }, sevenOne.GetViolationCount),
+                        }, sevenFiveTwenty.GetViolationCount),
                         new InputMonad("VB5_1", new QueryParams(1)
                         {
                             ViolationTypes = new[] {"RP"}
-                        }, sevenOne.GetViolationCount),
-                        new InputMonad("VIA_1", new QueryParams(1), sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetViolationCount),
+                        new InputMonad("VIA_1", new QueryParams(1), sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC1p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"AP"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC1f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"AP"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC2p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CT"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC2f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CT"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC3p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"MR"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC3f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"MR"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC4p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VIC4f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID1p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CR"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID1f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CR"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID2p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"TN"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID2f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"TN"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID3p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"RC"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID3f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"RC"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID4p_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
                             MitResult = new[] {"PS"}
-                        }, sevenOne.GetMechIntegrityWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
                         new InputMonad("VID4f_1", new QueryParams(1)
                         {
                             MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
                             MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenOne.GetMechIntegrityWells),
-                        new InputMonad("VIIA_1", new QueryParams(1), sevenOne.GetRemedialWells),
+                        }, sevenFiveTwenty.GetMechIntegrityWells),
+                        new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB1_1", new QueryParams(1)
                         {
                             RemedialAction = new [] {"CS"}
-                        }, sevenOne.GetRemedialWells),
+                        }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB2_1", new QueryParams(1)
                         {
                             RemedialAction = new [] {"TR", "PR"}
-                        }, sevenOne.GetRemedialWells),
+                        }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB3_1", new QueryParams(1)
                         {
                             RemedialAction = new [] {"PA"}
-                        }, sevenOne.GetRemedialWells),
+                        }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB4_1", new QueryParams(1)
                         {
                             RemedialAction = new [] {"OT"}
-                        }, sevenOne.GetRemedialWells),
+                        }, sevenFiveTwenty.GetRemedialWells),
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -562,140 +563,111 @@ namespace uic_forms
 
 //                    SetHeader(fields, options);
 
+                    var violations = sevenFiveTwenty.GetViolations();
+
+                    var include = new Collection<ViolationModel>();
+
+                    // this might be wrong
+                    foreach (var violation in violations)
+                    {
+                        // is there an enforcement?
+                        if (string.IsNullOrEmpty(violation.EnforcementType))
+                        {
+                            // no enforcement record
+                            if (violation.ReturnToComplianceDate.HasValue)
+                            {
+                                if ((violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days < 180)
+                                {
+                                    continue;
+                                }
+
+                                violation.ReturnToCompliance = true;
+
+                                include.Add(violation);
+                            }
+                            else
+                            {
+                                // No return to compliance date
+                                if ((options.EndDate - violation.ViolationDate).Days < 180)
+                                {
+                                    continue;
+                                }
+
+                                include.Add(violation);
+                            }
+                        }
+                        else
+                        {
+                            // SNC has enforcement
+                            if (!violation.EnforcementDate.HasValue || new[] {"INF", "OTR"}.Contains(violation.EnforcementType))
+                            {
+                                continue;
+                            }
+
+                            if ((violation.EnforcementDate.Value - violation.ViolationDate).Days < 180)
+                            {
+                                continue;
+                            }
+
+                            violation.Enforcement = true;
+
+                            include.Add(violation);
+                        }
+                    }
+
+                    // these are not static
                     var statics = new List<string>
                     {
-                        "UI_1", "MI_1", "IP_1", "PA_1", "FO_1", "F_1", "OV_1", "NOV_1", "CA_1",
-                        "AO_1", "CivR_1", "CrimR_1", "WSI_1", "PS_1", "OE_1"
+                        "UI_",
+                        "MI_",
+                        "IP_",
+                        "PA_",
+                        "FO_",
+                        "F_",
+                        "OV_",
+                        "NOV_",
+                        "CA_",
+                        "AO_",
+                        "CivR_",
+                        "CrimR_",
+                        "WSI_",
+                        "PS_",
+                        "OE_"
                     };
+                    // create a new page for every 9 wells?
+                    const int pageSize = 9;
+                    var row = 1;
+                    foreach (var violation in include)
+                    {
+                        var value = sevenFiveTwenty.GetWellSubClass(violation.WellId);
+                        var contact = sevenFiveTwenty.GetContactAddress(violation.WellId);
 
-                    statics.ForEach(field => { SetFieldCheck(field, true, fields); });
+                        SetFieldText("WCT_" + row, value, fields);
+                        SetFieldText("NAO_" + row, contact?.Address(), fields);
+                        SetFieldText("WID_" + row, sevenFiveTwenty.GetWellId(violation.WellId), fields);
+                        SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
+                        if (violation.Enforcement)
+                        {
+                            SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"), fields);
+                        }
 
-//                    var formInfo = new List<InputMonad>
-//                    {
-//                        new InputMonad("VA_1", new QueryParams(1), sevenOne.GetWellsInspected),
-//                        new InputMonad("VB1_1", new QueryParams(1)
-//                        {
-//                            InspectionType = new[] {"MI"}
-//                        }, sevenOne.GetInspections),
-//                        new InputMonad("VB2_1", new QueryParams(1)
-//                        {
-//                            ViolationTypes = new[] {"EC"}
-//                        }, sevenOne.GetInspections),
-//                        new InputMonad("VB3_1", new QueryParams(1)
-//                        {
-//                            ViolationTypes = new[] {"CO"}
-//                        }, sevenOne.GetViolationCount),
-//                        new InputMonad("VB4_1", new QueryParams(1)
-//                        {
-//                            ViolationTypes = new[] {"WP"}
-//                        }, sevenOne.GetViolationCount),
-//                        new InputMonad("VB5_1", new QueryParams(1)
-//                        {
-//                            ViolationTypes = new[] {"RP"}
-//                        }, sevenOne.GetViolationCount),
-//                        new InputMonad("VIA_1", new QueryParams(1), sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC1p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"AP"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC1f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"AP"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC2p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CT"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC2f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CT"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC3p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"MR"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC3f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"MR"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC4p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIC4f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID1p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CR"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID1f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CR"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID2p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"TN"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID2f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"TN"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID3p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"RC"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID3f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"RC"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID4p_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
-//                            MitResult = new[] {"PS"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VID4f_1", new QueryParams(1)
-//                        {
-//                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
-//                            MitResult = new[] {"FU", "FP", "FA"}
-//                        }, sevenOne.GetMechIntegrityWells),
-//                        new InputMonad("VIIA_1", new QueryParams(1), sevenOne.GetRemedialWells),
-//                        new InputMonad("VIIB1_1", new QueryParams(1)
-//                        {
-//                            RemedialAction = new [] {"CS"}
-//                        }, sevenOne.GetRemedialWells),
-//                        new InputMonad("VIIB2_1", new QueryParams(1)
-//                        {
-//                            RemedialAction = new [] {"TR", "PR"}
-//                        }, sevenOne.GetRemedialWells),
-//                        new InputMonad("VIIB3_1", new QueryParams(1)
-//                        {
-//                            RemedialAction = new [] {"PA"}
-//                        }, sevenOne.GetRemedialWells),
-//                        new InputMonad("VIIB4_1", new QueryParams(1)
-//                        {
-//                            RemedialAction = new [] {"OT"}
-//                        }, sevenOne.GetRemedialWells),
-//                    };
-//
-//                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
+                        if(violation.ReturnToCompliance)
+                        {
+                            var field = "DOC_" + row;
+                            // workaround for misspelling
+                            if (field == "DOC_2")
+                            {
+                                field = "DOC_ 2";
+                            }
+                            
+                            SetFieldText(field, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"), fields);
+                        }
 
-                    debug.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
+                        statics.ForEach(field => { SetFieldCheck(row, field, true, fields); });
+                        row += 1;
+                    }
+
+                    debug.AlwaysWrite("Saving 7520-4 form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
@@ -735,12 +707,17 @@ namespace uic_forms
 
         private static void SetFieldText(string field, object value, PdfAcroField.PdfAcroFieldCollection fields)
         {
+            if (value == null)
+            {
+                return;
+            }
+
             ((PdfTextField) fields[field]).Value = new PdfString(value.ToString());
         }
         
-        private static void SetFieldCheck(string field, bool value, PdfAcroField.PdfAcroFieldCollection fields)
+        private static void SetFieldCheck(int row, string field, bool value, PdfAcroField.PdfAcroFieldCollection fields)
         {
-            ((PdfCheckBoxField) fields[field]).Checked = value;
+            ((PdfCheckBoxField) fields[field + row]).Checked = value;
         }
     }
 }
