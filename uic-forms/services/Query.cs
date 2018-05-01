@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using Dapper;
+using PdfSharp.Internal;
 using uic_forms.models;
 
 namespace uic_forms.services
@@ -400,10 +401,12 @@ namespace uic_forms.services
         public IEnumerable<ViolationModel> GetViolations()
         {
             const string query = @"SELECT 
+            Violation_view.GUID as Id,
             Violation_view.Well_FK as wellid,
             Violation_view.ViolationDate, 
             Violation_view.SignificantNonCompliance, 
             Violation_view.ReturnToComplianceDate, 
+            Enforcement_view.Guid as EnforcementId,
             Enforcement_view.EnforcementDate, 
             Enforcement_view.EnforcementType
                 FROM
@@ -517,6 +520,65 @@ WHERE
             }
 
             return well?.Id;
+        }
+
+        public void GetViolationCheckmarks(Guid violationId, string enforcementType, ref Dictionary<string, bool> fields)
+        {
+            var type = _connection.QueryFirstOrDefault<string>("SELECT ViolationType " +
+                                                         "FROM Violation_view " +
+                                                         "WHERE GUID = @violationId", new
+            {
+                violationId
+            });
+
+            switch (type)
+            {
+                case "UI":
+                    fields["UI_"] = true;
+                    break;
+                case "MI":
+                case "MO":
+                    fields["MI_"] = true;
+                    break;
+                case "IP":
+                    fields["IP_"] = true;
+                    break;
+                case "PA":
+                    fields["PA_"] = true;
+                    break;
+                case "FO":
+                    fields["FO_"] = true;
+                    break;
+                case "FA":
+                    fields["FA_"] = true;
+                    break;
+                case "OT":
+                    fields["OV_"] = true;
+                    break;
+            }
+
+            switch (enforcementType)
+            {
+                case "NOV":
+                    fields["NOV_"] = true;
+                    break;
+                case "CGT":
+                    fields["CA_"] = true;
+                    break;
+                case "DAO":
+                case "FAO":
+                    fields["AO_"] = true;
+                    break;
+                case "CIR":
+                    fields["CivR_"] = true;
+                    break;
+                case "CRR":
+                    fields["CrimR_"] = true;
+                    break;
+                case "SHT":
+                    fields["WSI_"] = true;
+                    break;
+            }
         }
     }
 }

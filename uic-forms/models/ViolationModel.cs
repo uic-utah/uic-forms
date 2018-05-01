@@ -4,9 +4,9 @@ namespace uic_forms.models
 {
     public class ViolationModel
     {
+        public Guid Id { get; set; }
         public Guid WellId { get; set; }
         public DateTime ViolationDate { get; set; }
-        public char SignificantNonCompliance { get; set; }
         public DateTime? ReturnToComplianceDate { get; set; }
         public DateTime? EnforcementDate { get; set; }
         public string EnforcementType { get; set; }

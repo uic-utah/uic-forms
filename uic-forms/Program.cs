@@ -62,6 +62,7 @@ namespace uic_forms
             var start = Stopwatch.StartNew();
 
             debug.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
+            debug.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(), options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
             debug.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate))
@@ -558,65 +559,132 @@ namespace uic_forms
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
                 {
                     var fields = document.AcroForm.Fields;
+                    var include = new Collection<ViolationModel>();
+                    var formalActions = new[] { "CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT" };
 
                     EnableUpdates(document.AcroForm);
 
-//                    SetHeader(fields, options);
+                    SetHeader(fields, options);
 
                     var violations = sevenFiveTwenty.GetViolations();
 
-                    var include = new Collection<ViolationModel>();
-
-                    // this might be wrong
                     foreach (var violation in violations)
                     {
-                        // is there an enforcement?
-                        if (string.IsNullOrEmpty(violation.EnforcementType))
+                        debug.Write("violation date {0}", violation.ViolationDate.ToShortDateString());
+                        int days;
+                        if (violation.ReturnToComplianceDate.HasValue)
                         {
-                            // no enforcement record
-                            if (violation.ReturnToComplianceDate.HasValue)
+                            // Yes return to compliance date
+                            days = (violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days;
+                            debug.Write("  return to compliance date of {0}",
+                                        violation.ReturnToComplianceDate.Value.ToShortDateString());
+                            debug.Write("  {0} days of violation", days);
+
+                            if (days < 180)
                             {
-                                if ((violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days < 180)
+                                debug.Write("  skipping because less than 180");
+                                continue;
+                            }
+
+                            days = (options.EndDate - violation.ReturnToComplianceDate.Value).Days;
+                            debug.Write("  {0} days since violation reporting", days);
+
+                            if (days > 90)
+                            {
+                                debug.Write("skipping because not within 90 day reporting period");
+                                continue;
+                            }
+
+                            debug.Write("including");
+                            violation.ReturnToCompliance = true;
+
+                            include.Add(violation);
+                        }
+                        else
+                        {
+                            // No return to compliance date
+                            if (string.IsNullOrEmpty(violation.EnforcementType))
+                            {
+                                // No enforcement record
+                                debug.Write("  No enforcement");
+
+                                // No return to compliance date
+                                days = (options.EndDate - violation.ViolationDate).Days;
+                                debug.Write("  {0} days since violation reporting", days);
+
+                                if (days < 180)
                                 {
+                                    debug.Write("skipping because not within 180 day reporting period");
                                     continue;
                                 }
 
-                                violation.ReturnToCompliance = true;
+                                debug.Write("including");
 
                                 include.Add(violation);
                             }
                             else
                             {
-                                // No return to compliance date
-                                if ((options.EndDate - violation.ViolationDate).Days < 180)
+                                // Yes enforcement
+                                debug.Write("  enforcement type {0}", violation.EnforcementType);
+
+                                if (formalActions.Contains(violation.EnforcementType))
                                 {
-                                    continue;
+                                    debug.Write("  not a formal action type");
+
+                                    days = (options.EndDate - violation.ViolationDate).Days;
+                                    debug.Write("  {0} days since violation reporting", days);
+
+                                    if (days < 180)
+                                    {
+                                        debug.Write("skipping because not within 180 day reporting period");
+                                        continue;
+                                    }
+
+                                    debug.Write("including");
+
+                                    include.Add(violation);
                                 }
+                                else
+                                {
+                                    // Yes formal action type
+                                    debug.Write("  formal action type {0}", violation.EnforcementType);
 
-                                include.Add(violation);
+                                    if (!violation.EnforcementDate.HasValue)
+                                    {
+                                        debug.Write("skipping since no enforcement date");
+                                        continue;
+                                    }
+
+                                    days = (violation.EnforcementDate.Value - violation.ViolationDate).Days;
+                                    debug.Write("  {0} days since enforcement", days);
+
+                                    if (days < 180)
+                                    {
+                                        debug.Write("skipping because not within 180 day period");
+                                        continue;
+                                    }
+
+                                    days = (violation.EnforcementDate.Value - options.EndDate).Days;
+                                    debug.Write("  {0} days since enforcement reporting period", days);
+
+                                    if (days > 90)
+                                    {
+                                        debug.Write("skipping because not within 90 day reporting period");
+                                        continue;
+                                    }
+
+                                    debug.Write("including");
+
+                                    violation.Enforcement = true;
+
+                                    include.Add(violation);
+                                }
                             }
-                        }
-                        else
-                        {
-                            // SNC has enforcement
-                            if (!violation.EnforcementDate.HasValue || new[] {"INF", "OTR"}.Contains(violation.EnforcementType))
-                            {
-                                continue;
-                            }
-
-                            if ((violation.EnforcementDate.Value - violation.ViolationDate).Days < 180)
-                            {
-                                continue;
-                            }
-
-                            violation.Enforcement = true;
-
-                            include.Add(violation);
                         }
                     }
 
                     // these are not static
-                    var statics = new List<string>
+                    var checkboxFields = new List<string>
                     {
                         "UI_",
                         "MI_",
@@ -639,6 +707,12 @@ namespace uic_forms
                     var row = 1;
                     foreach (var violation in include)
                     {
+                        if (row > pageSize)
+                        {
+                            debug.AlwaysWrite("Too many violations skipping");
+                            continue;
+                        }
+
                         var value = sevenFiveTwenty.GetWellSubClass(violation.WellId);
                         var contact = sevenFiveTwenty.GetContactAddress(violation.WellId);
 
@@ -646,17 +720,24 @@ namespace uic_forms
                         SetFieldText("NAO_" + row, contact?.Address(), fields);
                         SetFieldText("WID_" + row, sevenFiveTwenty.GetWellId(violation.WellId), fields);
                         SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
-                        if (violation.Enforcement)
+                        if (violation.EnforcementDate.HasValue)
                         {
                             SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"), fields);
                         }
 
-                        if(violation.ReturnToCompliance)
+                        if(violation.ReturnToComplianceDate.HasValue)
                         {
                             SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"), fields);
                         }
 
-                        statics.ForEach(field => { SetFieldCheck(row, field, true, fields); });
+                        var checks = checkboxFields.ToDictionary(key => key, v => false);
+                        sevenFiveTwenty.GetViolationCheckmarks(violation.Id, violation.EnforcementType, ref checks);
+
+                        foreach (var item in checks)
+                        {
+                            SetFieldCheck(row, item.Key, item.Value, fields);
+                        }
+
                         row += 1;
                     }
 
@@ -666,14 +747,25 @@ namespace uic_forms
                 }
             }
 
+            debug.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(), options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             debug.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadKey();
         }
 
         private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)
         {
-            SetFieldText("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-            SetFieldText("DateSigned", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            if (fields.Names.Contains("DatePrepared"))
+            {
+                SetFieldText("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            }
+            if (fields.Names.Contains("Date Signed"))
+            {
+                SetFieldText("Date Signed", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            }
+            if (fields.Names.Contains("DateSigned"))
+            {
+                SetFieldText("DateSigned", DateTime.Today.ToString("MMM dd, yyyy"), fields);
+            }
             SetFieldText("ReportingFromDate", options.StartDate.ToString("MMM dd, yyyy"), fields);
             SetFieldText("ReportingToDate", options.EndDate.ToString("MMM dd, yyyy"), fields);
         }
