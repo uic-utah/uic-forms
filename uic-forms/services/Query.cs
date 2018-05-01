@@ -15,7 +15,7 @@ namespace uic_forms.services
         private readonly SqlConnection _connection;
         private readonly DateTime _endDate;
         private readonly DateTime _startDate;
-        private IEnumerable<DomainModel> _subClassLookup;
+        private readonly IEnumerable<DomainModel> _subClassLookup;
 
         public Querier(DateTime startDate, DateTime endDate)
         {
@@ -579,6 +579,11 @@ WHERE
                     fields["WSI_"] = true;
                     break;
             }
+        }
+
+        public int NoOp(QueryParams options)
+        {
+            return 0;
         }
     }
 }

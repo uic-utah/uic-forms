@@ -6,6 +6,24 @@ namespace uic_forms.models
 {
     public class QueryParams
     {
+        public QueryParams()
+        {
+            
+        }
+        public QueryParams(QueryParams queryParams)
+        {
+            WellClass = queryParams.WellClass;
+            StartDate = queryParams.StartDate;
+            AuthActionTypes = queryParams.AuthActionTypes;
+            AuthTypes = queryParams.AuthTypes;
+            ViolationTypes = queryParams.ViolationTypes;
+            EnforcementTypes = queryParams.EnforcementTypes;
+            InspectionType = queryParams.InspectionType;
+            MitTypes = queryParams.MitTypes;
+            MitResult = queryParams.MitResult;
+            Snc = queryParams.Snc;
+            RemedialAction = queryParams.RemedialAction;
+        }
         public QueryParams(int wellClass)
         {
             WellClass = wellClass;

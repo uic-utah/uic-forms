@@ -1,6 +1,4 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -62,7 +60,8 @@ namespace uic_forms
             var start = Stopwatch.StartNew();
 
             debug.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
-            debug.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(), options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
+            debug.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
+                              options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
             debug.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate))
@@ -83,115 +82,63 @@ namespace uic_forms
                     SetFieldText("VIB_1E", "NA", fields);
                     SetFieldText("VIC_1E", "NA", fields);
 
-                    var formInfo = new List<InputMonad>
-                    {
-                        new InputMonad("V_1", new QueryParams(1)
-                        {
-                            AuthActionTypes = new[] {"AI", "AM", "AR"}
-                        }, sevenFiveTwenty.GetPermitCount),
-                        new InputMonad("VIA_1N", new QueryParams(1)
-                        {
-                            AuthTypes = new[] {"IP"},
-                            AuthActionTypes = new[] {"PI"}
-                        }, sevenFiveTwenty.GetPermitCount),
-                        new InputMonad("VIB_1N", new QueryParams(1)
-                        {
-                            AuthTypes = new[] {"AP"},
-                            AuthActionTypes = new[] {"PI"}
-                        }, sevenFiveTwenty.GetPermitCount),
-                        new InputMonad("VIC_1N", new QueryParams(1)
-                        {
-                            AuthTypes = new[] {"AP"},
-                            AuthActionTypes = new[] {"PI"}
-                        }, sevenFiveTwenty.GetWellPermitCount),
-                        new InputMonad("VID_1", new QueryParams(1)
-                        {
-                            AuthTypes = new[] {"IP", "AP", "GP", "EP", "OP"},
-                            AuthActionTypes = new[] {"PT"}
-                        }, sevenFiveTwenty.GetPermitCount),
-                        new InputMonad("VIE_1", new QueryParams(1)
-                        {
-                            AuthTypes = new[] {"IP", "AP", "GP", "OP"},
-                            AuthActionTypes = new[] {"PM"}
-                        }, sevenFiveTwenty.GetPermitCount)
-                    };
+                    var formInfo = new List<InputMonad>();
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "V_{class}",
+                                                       new QueryParams
+                                                       {
+                                                           AuthActionTypes = new[] {"AI", "AM", "AR"}
+                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}N",
+                                                       new QueryParams
+                                                       {
+                                                           AuthTypes = new[] {"IP"},
+                                                           AuthActionTypes = new[] {"PI"}
+                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB_{class}N",
+                                                       new QueryParams
+                                                       {
+                                                           AuthTypes = new[] {"AP"},
+                                                           AuthActionTypes = new[] {"PI"}
+                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC_{class}N",
+                                                       new QueryParams
+                                                       {
+                                                           AuthTypes = new[] {"AP"},
+                                                           AuthActionTypes = new[] {"PI"}
+                                                       }, sevenFiveTwenty.GetWellPermitCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID_{class}",
+                                                       new QueryParams
+                                                       {
+                                                           AuthTypes = new[]
+                                                               {"IP", "AP", "GP", "EP", "OP"},
+                                                           AuthActionTypes = new[] {"PT"}
+                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIE_{class}",
+                                                       new QueryParams
+                                                       {
+                                                           AuthTypes = new[] {"IP", "AP", "GP", "OP"},
+                                                           AuthActionTypes = new[] {"PM"}
+                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}A",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}O",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}A",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}O",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC2_{class}",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC3_{class}",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC4_{class}",
+                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
-
-//                SetFieldText("VIIIA_1A", sevenOne.GetOtherCount(new QueryParams(1)
-//                {
-//
-//                }), fields);
-//
-//                SetFieldText("VIIIA_1O", sevenOne.GetOtherCount(new QueryParams(1)
-//                {
-//
-//                }), fields);
-//
-//                SetFieldText("VIIIB_1A", sevenOne.GetOtherCount(new QueryParams(1)
-//                {
-//
-//                }), fields);
-//
-//                SetFieldText("VIIIB_1O", sevenOne.GetOtherCount(new QueryParams(1)
-//                {
-//
-//                }), fields);
-
-
-                    //                SetFieldText("V_3", sevenOne.V3(), fields);
-                    //                SetFieldText("VIA_3N", sevenOne.VIA3N(), fields);
-                    //                SetFieldText("VIA_3E", sevenOne.VIA3E(), fields);
-                    //                SetFieldText("VIB_3N", sevenOne.VIB3N(), fields);
-                    //                SetFieldText("VIB_3E", sevenOne.VIB3E(), fields);
-                    //                SetFieldText("VIC_3N", sevenOne.VIC3N(), fields);
-                    //                SetFieldText("VIC_3E", sevenOne.VIC3E(), fields);
-                    //                SetFieldText("VID_3", sevenOne.VID3(), fields);
-                    //                SetFieldText("VIE_3", sevenOne.VIE3(), fields);
-                    //                SetFieldText("VIIIA_3A", sevenOne.VIIIA3A(), fields);
-                    //                SetFieldText("VIIIA_3O", sevenOne.VIIIA30(), fields);
-                    //                SetFieldText("VIIIB_3A", sevenOne.VIIIB3A(), fields);
-                    //                SetFieldText("VIIIB_3O", sevenOne.VIIIB3O(), fields);
-                    //                SetFieldText("VIIIC1_3", sevenOne.VIIIC13(), fields);
-                    //                SetFieldText("VIIIC2_3", sevenOne.VIIIC23(), fields);
-                    //                SetFieldText("VIIIC3_3", sevenOne.VIIIC33(), fields);
-                    //                SetFieldText("VIIIC4_3", sevenOne.VIIIC43(), fields);
-                    //
-                    //                SetFieldText("V_4", sevenOne.V4(), fields);
-                    //                SetFieldText("VIA_4N", sevenOne.VIA4N(), fields);
-                    //                SetFieldText("VIA_4E", sevenOne.VIA4E(), fields);
-                    //                SetFieldText("VIB_4N", sevenOne.VIB4N(), fields);
-                    //                SetFieldText("VIB_4E", sevenOne.VIB4E(), fields);
-                    //                SetFieldText("VIC_4N", sevenOne.VIC4N(), fields);
-                    //                SetFieldText("VIC_4E", sevenOne.VIC4E(), fields);
-                    //                SetFieldText("VID_4", sevenOne.VID4(), fields);
-                    //                SetFieldText("VIE_4", sevenOne.VIE4(), fields);
-                    //                SetFieldText("VIIIA_4A", sevenOne.VIIIA4A(), fields);
-                    //                SetFieldText("VIIIA_4O", sevenOne.VIIIA40(), fields);
-                    //                SetFieldText("VIIIB_4A", sevenOne.VIIIB4A(), fields);
-                    //                SetFieldText("VIIIB_4O", sevenOne.VIIIB4O(), fields);
-                    //                SetFieldText("VIIIC1_4", sevenOne.VIIIC14(), fields);
-                    //                SetFieldText("VIIIC2_4", sevenOne.VIIIC24(), fields);
-                    //                SetFieldText("VIIIC3_4", sevenOne.VIIIC34(), fields);
-                    //                SetFieldText("VIIIC4_4", sevenOne.VIIIC44(), fields);
-                    //
-                    //                SetFieldText("V_5", sevenOne.V5(), fields);
-                    //                SetFieldText("VIA_5N", sevenOne.VIA5N(), fields);
-                    //                SetFieldText("VIA_5E", sevenOne.VIA5E(), fields);
-                    //                SetFieldText("VIB_5N", sevenOne.VIB5N(), fields);
-                    //                SetFieldText("VIB_5E", sevenOne.VIB5E(), fields);
-                    //                SetFieldText("VIC_5N", sevenOne.VIC5N(), fields);
-                    //                SetFieldText("VIC_5E", sevenOne.VIC5E(), fields);
-                    //                SetFieldText("VID_5", sevenOne.VID5(), fields);
-                    //                SetFieldText("VIE_5", sevenOne.VIE5(), fields);
-                    //                SetFieldText("VIIIA_5A", sevenOne.VIIIA5A(), fields);
-                    //                SetFieldText("VIIIA_5O", sevenOne.VIIIA50(), fields);
-                    //                SetFieldText("VIIIB_5A", sevenOne.VIIIB5A(), fields);
-                    //                SetFieldText("VIIIB_5O", sevenOne.VIIIB5O(), fields);
-                    //                SetFieldText("VIIIC1_5", sevenOne.VIIIC15(), fields);
-                    //                SetFieldText("VIIIC2_5", sevenOne.VIIIC25(), fields);
-                    //                SetFieldText("VIIIC3_5", sevenOne.VIIIC35(), fields);
-                    //                SetFieldText("VIIIC4_5", sevenOne.VIIIC45(), fields);
 
                     // Output the path for manual verification of result
                     debug.AlwaysWrite("Saving 7520-1 form to {0}", formPaths.Item2);
@@ -273,11 +220,11 @@ namespace uic_forms
                         }, sevenFiveTwenty.GetWellsWithEnforcements),
                         new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIIB_1", new QueryParams(1)
-                        {
-                            StartDate = options.StartDate
-                        },
-                        sevenFiveTwenty.GetWellsReturnedToCompliance),
-                        new InputMonad("VIII_1", new QueryParams(1), sevenFiveTwenty.GetContaminationViolations),
+                                       {
+                                           StartDate = options.StartDate
+                                       },
+                                       sevenFiveTwenty.GetWellsReturnedToCompliance),
+                        new InputMonad("VIII_1", new QueryParams(1), sevenFiveTwenty.GetContaminationViolations)
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -382,15 +329,15 @@ namespace uic_forms
                             Snc = true
                         }, sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIIB_1", new QueryParams(1)
-                        {
-                            StartDate = options.StartDate,
-                            Snc = true
-                        },
-                        sevenFiveTwenty.GetWellsReturnedToCompliance),
+                                       {
+                                           StartDate = options.StartDate,
+                                           Snc = true
+                                       },
+                                       sevenFiveTwenty.GetWellsReturnedToCompliance),
                         new InputMonad("VIII_1", new QueryParams(1)
                         {
                             Snc = true
-                        }, sevenFiveTwenty.GetContaminationViolations),
+                        }, sevenFiveTwenty.GetContaminationViolations)
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -399,7 +346,7 @@ namespace uic_forms
 
                     document.Save(formPaths.Item2);
                 }
-                
+
                 formPaths = GetFormLocations(options, "7520-3");
                 debug.AlwaysWrite("Loading template for the 7520-3 form...");
 
@@ -414,10 +361,36 @@ namespace uic_forms
 
                     var na = new List<string>
                     {
-                        "VIB_1", "VIBf_1", "VIB_3", "VIBf_3", "VIA_4", "VIB_4", "VIBf_4", "VIC1p_4", "VIC2p_4",
-                        "VIC3p_4", "VIC4p_4", "VIC1f_4", "VIC2f_4", "VIC3f_4", "VIC4f_4", "VID1p_4", "VID2p_4",
-                        "VID3p_4", "VID4p_4", "VID1f_4", "VID2f_4", "VID3f_4", "VID4f_4", "VIIA_4", "VIIB1_4",
-                        "VIIB2_4", "VIIB3_4", "VIIB4_4", "VIB_5", "VIBf_5"
+                        "VIB_1",
+                        "VIBf_1",
+                        "VIB_3",
+                        "VIBf_3",
+                        "VIA_4",
+                        "VIB_4",
+                        "VIBf_4",
+                        "VIC1p_4",
+                        "VIC2p_4",
+                        "VIC3p_4",
+                        "VIC4p_4",
+                        "VIC1f_4",
+                        "VIC2f_4",
+                        "VIC3f_4",
+                        "VIC4f_4",
+                        "VID1p_4",
+                        "VID2p_4",
+                        "VID3p_4",
+                        "VID4p_4",
+                        "VID1f_4",
+                        "VID2f_4",
+                        "VID3f_4",
+                        "VID4f_4",
+                        "VIIA_4",
+                        "VIIB1_4",
+                        "VIIB2_4",
+                        "VIIB3_4",
+                        "VIIB4_4",
+                        "VIB_5",
+                        "VIBf_5"
                     };
 
                     na.ForEach(field => { SetFieldText(field, "NA", fields); });
@@ -529,20 +502,20 @@ namespace uic_forms
                         new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB1_1", new QueryParams(1)
                         {
-                            RemedialAction = new [] {"CS"}
+                            RemedialAction = new[] {"CS"}
                         }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB2_1", new QueryParams(1)
                         {
-                            RemedialAction = new [] {"TR", "PR"}
+                            RemedialAction = new[] {"TR", "PR"}
                         }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB3_1", new QueryParams(1)
                         {
-                            RemedialAction = new [] {"PA"}
+                            RemedialAction = new[] {"PA"}
                         }, sevenFiveTwenty.GetRemedialWells),
                         new InputMonad("VIIB4_1", new QueryParams(1)
                         {
-                            RemedialAction = new [] {"OT"}
-                        }, sevenFiveTwenty.GetRemedialWells),
+                            RemedialAction = new[] {"OT"}
+                        }, sevenFiveTwenty.GetRemedialWells)
                     };
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
@@ -560,7 +533,7 @@ namespace uic_forms
                 {
                     var fields = document.AcroForm.Fields;
                     var include = new Collection<ViolationModel>();
-                    var formalActions = new[] { "CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT" };
+                    var formalActions = new[] {"CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT"};
 
                     EnableUpdates(document.AcroForm);
 
@@ -722,12 +695,14 @@ namespace uic_forms
                         SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
                         if (violation.EnforcementDate.HasValue)
                         {
-                            SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"), fields);
+                            SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"),
+                                         fields);
                         }
 
-                        if(violation.ReturnToComplianceDate.HasValue)
+                        if (violation.ReturnToComplianceDate.HasValue)
                         {
-                            SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"), fields);
+                            SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"),
+                                         fields);
                         }
 
                         var checks = checkboxFields.ToDictionary(key => key, v => false);
@@ -747,7 +722,8 @@ namespace uic_forms
                 }
             }
 
-            debug.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(), options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
+            debug.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
+                              options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             debug.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadKey();
         }
@@ -799,7 +775,7 @@ namespace uic_forms
 
             ((PdfTextField) fields[field]).Value = new PdfString(value.ToString());
         }
-        
+
         private static void SetFieldCheck(int row, string field, bool value, PdfAcroField.PdfAcroFieldCollection fields)
         {
             ((PdfCheckBoxField) fields[field + row]).Checked = value;
