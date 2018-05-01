@@ -653,14 +653,7 @@ namespace uic_forms
 
                         if(violation.ReturnToCompliance)
                         {
-                            var field = "DOC_" + row;
-                            // workaround for misspelling
-                            if (field == "DOC_2")
-                            {
-                                field = "DOC_ 2";
-                            }
-                            
-                            SetFieldText(field, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"), fields);
+                            SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"), fields);
                         }
 
                         statics.ForEach(field => { SetFieldCheck(row, field, true, fields); });
