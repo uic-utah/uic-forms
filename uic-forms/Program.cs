@@ -543,11 +543,12 @@ namespace uic_forms
 
                     foreach (var violation in violations)
                     {
-                        debug.Write("violation date {0}", violation.ViolationDate.ToShortDateString());
+                        debug.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(), violation.EsriId);
                         int days;
                         if (violation.ReturnToComplianceDate.HasValue)
                         {
                             // Yes return to compliance date
+                            debug.Write("  ReturnToComplianceDate - Yes");
                             days = (violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days;
                             debug.Write("  return to compliance date of {0}",
                                         violation.ReturnToComplianceDate.Value.ToShortDateString());
@@ -575,11 +576,12 @@ namespace uic_forms
                         }
                         else
                         {
+                            debug.Write("  ReturnToComplianceDate - No");
                             // No return to compliance date
                             if (string.IsNullOrEmpty(violation.EnforcementType))
                             {
                                 // No enforcement record
-                                debug.Write("  No enforcement");
+                                debug.Write("  Enforcement - No");
 
                                 // No return to compliance date
                                 days = (options.EndDate - violation.ViolationDate).Days;
@@ -598,11 +600,12 @@ namespace uic_forms
                             else
                             {
                                 // Yes enforcement
-                                debug.Write("  enforcement type {0}", violation.EnforcementType);
+                                debug.Write("  Enforcement - Yes");
+                                debug.Write("  Enforcement type {0}", violation.EnforcementType);
 
                                 if (formalActions.Contains(violation.EnforcementType))
                                 {
-                                    debug.Write("  not a formal action type");
+                                    debug.Write("  Formal Enforcement Action - No");
 
                                     days = (options.EndDate - violation.ViolationDate).Days;
                                     debug.Write("  {0} days since violation reporting", days);
@@ -620,6 +623,7 @@ namespace uic_forms
                                 else
                                 {
                                     // Yes formal action type
+                                    debug.Write("  Formal Enforcement Action - Yes");
                                     debug.Write("  formal action type {0}", violation.EnforcementType);
 
                                     if (!violation.EnforcementDate.HasValue)
@@ -690,7 +694,9 @@ namespace uic_forms
                         var contact = sevenFiveTwenty.GetContactAddress(violation.WellId);
 
                         SetFieldText("WCT_" + row, value, fields);
-                        SetFieldText("NAO_" + row, contact?.Address(), fields);
+//                        SetFieldText("NAO_" + row, contact?.Address(), fields);
+                        SetFieldText("NAO_" + row, violation.Id, fields);
+
                         SetFieldText("WID_" + row, sevenFiveTwenty.GetWellId(violation.WellId), fields);
                         SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
                         if (violation.EnforcementDate.HasValue)
