@@ -700,13 +700,13 @@ namespace uic_forms
 
                         SetFieldText("WID_" + row, sevenFiveTwenty.GetWellId(violation.WellId), fields);
                         SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
-                        if (violation.EnforcementDate.HasValue)
+                        if (violation.EnforcementDate.HasValue && violation.EnforcementDate.Value <= options.EndDate)
                         {
                             SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"),
                                          fields);
                         }
 
-                        if (violation.ReturnToComplianceDate.HasValue)
+                        if (violation.ReturnToComplianceDate.HasValue && violation.ReturnToComplianceDate.Value <= options.EndDate)
                         {
                             SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"),
                                          fields);
@@ -732,7 +732,6 @@ namespace uic_forms
             _logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
                               options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             _logger.AlwaysWrite("Finished: {0}", start.Elapsed);
-            Console.ReadKey();
         }
 
         private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)
