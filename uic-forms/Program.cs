@@ -128,14 +128,14 @@ namespace uic_forms
                                                        new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}O",
                                                        new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
-                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
-                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC2_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
-                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC3_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
-                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC4_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
+//                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC2_{class}",
+//                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC3_{class}",
+//                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC4_{class}",
+//                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
 
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
