@@ -603,7 +603,7 @@ namespace uic_forms
                                 debug.Write("  Enforcement - Yes");
                                 debug.Write("  Enforcement type {0}", violation.EnforcementType);
 
-                                if (formalActions.Contains(violation.EnforcementType))
+                                if (!formalActions.Contains(violation.EnforcementType))
                                 {
                                     debug.Write("  Formal Enforcement Action - No");
 
