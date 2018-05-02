@@ -402,6 +402,7 @@ namespace uic_forms.services
         {
             const string query = @"SELECT 
             Violation_view.GUID as Id,
+            Violation_view.OBJECTID as esriid,
             Violation_view.Well_FK as wellid,
             Violation_view.ViolationDate, 
             Violation_view.SignificantNonCompliance, 
@@ -414,7 +415,8 @@ namespace uic_forms.services
                 INNER JOIN UICViolationToEnforcement_evw ON Enforcement_view.GUID = UICViolationToEnforcement_evw.EnforcementGUID
                 FULL JOIN Violation_view ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
             WHERE
-            Violation_view.SignificantNonCompliance = @yes";
+            Violation_view.SignificantNonCompliance = @yes
+            ORDER BY esriid";
 
             return _connection.Query<ViolationModel>(query, new
             {
