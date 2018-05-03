@@ -23,6 +23,9 @@ namespace uic_forms.models
             MitResult = queryParams.MitResult;
             Snc = queryParams.Snc;
             RemedialAction = queryParams.RemedialAction;
+            WellType = queryParams.WellType;
+            Ident4Ca = queryParams.Ident4Ca;
+            CaType = queryParams.CaType;
         }
         public QueryParams(int wellClass)
         {
@@ -38,7 +41,10 @@ namespace uic_forms.models
         public IEnumerable<string> InspectionType { get; set; } = Enumerable.Empty<string>();
         public IEnumerable<string> MitTypes { get; set; } = Enumerable.Empty<string>();
         public IEnumerable<string> MitResult { get; set; } = Enumerable.Empty<string>();
-        public bool Snc { get; set; }
         public IEnumerable<string> RemedialAction { get; set; } = Enumerable.Empty<string>();
+        public IEnumerable<int> WellType { get; set; } = Enumerable.Empty<int>();
+        public bool Snc { get; set; }
+        public bool Ident4Ca { get; set; }
+        public int CaType { get; set; }
     }
 }
