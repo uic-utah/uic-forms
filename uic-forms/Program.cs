@@ -114,7 +114,7 @@ namespace uic_forms
                                                        {
                                                            AuthTypes = new[]
                                                                {"IP", "AP", "GP", "EP", "OP"},
-                                                           AuthActionTypes = new[] {"PT"}
+                                                           AuthActionTypes = new[] {"PD"}
                                                        }, sevenFiveTwenty.GetPermitCount, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIE_{class}",
                                                        new QueryParams
@@ -123,21 +123,47 @@ namespace uic_forms
                                                            AuthActionTypes = new[] {"PM"}
                                                        }, sevenFiveTwenty.GetPermitCount, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}A",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           WellType = new [] {1}
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}O",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           WellType = new[] {2, 3}
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}A",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           WellType = new[] {1},
+                                                           Ident4Ca = true
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}O",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           WellType = new[] { 2, 3 },
+                                                           Ident4Ca = true
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           CaType = 1
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC2_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           CaType = 2
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC3_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           CaType = 3
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC4_{class}",
-                                                       new QueryParams(), sevenFiveTwenty.NoOp, ref formInfo);
+                                                       new QueryParams
+                                                       {
+                                                           CaType = 4
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
 
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
