@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using Dapper;
-using PdfSharp.Internal;
 using uic_forms.models;
 
 namespace uic_forms.services
@@ -37,6 +36,11 @@ namespace uic_forms.services
 
         public int GetPermitCount(QueryParams options)
         {
+            // In UICWell.WellClass = '1' 
+            // AND UICAuthorization.AuthorizationType = 'IP, AP, GP, EP, OP' 
+            // AND UICAuthorizationAction.AuthorizationActionType = 'PT' 
+            // AND UICAuthorizationAction.AuthorizatonActionDate is between ReportingFromDate and ReportingToDate
+
             var actionTypes = options.AuthActionTypes as string[] ?? options.AuthActionTypes.ToArray();
             var types = options.AuthTypes as string[] ?? options.AuthTypes.ToArray();
 
@@ -45,13 +49,13 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = "SELECT COUNT(DISTINCT(Permit_view.GUID)) " +
-                        "FROM Well_view " +
-                        "INNER JOIN Permit_view " +
-                        "ON Permit_view.GUID = Well_view.Authorization_FK " +
-                        "INNER JOIN Action_view " +
-                        "ON Permit_view.GUID = Action_view.Authorization_FK " +
-                        "WHERE Well_view.WellClass = @wellClass ";
+            var query = @"SELECT COUNT(DISTINCT(Action_view.GUID))
+                        FROM Action_view 
+                        INNER JOIN Permit_view 
+                            ON Action_view.Authorization_FK = Permit_view.GUID 
+                        LEFT OUTER JOIN Well_view 
+                            ON Permit_view.GUID = Well_view.Authorization_FK 
+                        WHERE Action_view.AuthorizationActionDate BETWEEN @start AND @end ";
 
             if (actionTypes.Length == 1)
             {
@@ -75,7 +79,7 @@ namespace uic_forms.services
                 vars.authTypes = types;
             }
 
-            query += "AND Action_view.AuthorizationActionDate BETWEEN @start AND @end";
+            query += "AND Well_view.WellClass = @wellClass";
 
             var variables = (object) vars;
 
@@ -175,7 +179,7 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object)vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
         }
 
         public int GetWellsWithEnforcements(QueryParams options)
@@ -516,7 +520,7 @@ WHERE
                 wellId
             });
 
-            if (new[] { "IP", "AP", "GP", "EP", "OP"}.Contains(well?.Code))
+            if (new[] {"IP", "AP", "GP", "EP", "OP"}.Contains(well?.Code))
             {
                 return well?.AuthorizationId;
             }
@@ -524,11 +528,12 @@ WHERE
             return well?.Id;
         }
 
-        public void GetViolationCheckmarks(Guid violationId, string enforcementType, ref Dictionary<string, bool> fields)
+        public void GetViolationCheckmarks(Guid violationId, string enforcementType,
+                                           ref Dictionary<string, bool> fields)
         {
             var type = _connection.QueryFirstOrDefault<string>("SELECT ViolationType " +
-                                                         "FROM Violation_view " +
-                                                         "WHERE GUID = @violationId", new
+                                                               "FROM Violation_view " +
+                                                               "WHERE GUID = @violationId", new
             {
                 violationId
             });
