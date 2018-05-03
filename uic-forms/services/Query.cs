@@ -628,7 +628,7 @@ WHERE
                 query += "AND Artificial_view.ArtPen_WellType = @wellType ";
                 vars.wellType = types[0];
             }
-            else
+            else if (options.WellType.Count() > 1)
             {
                 query += "AND Artificial_view.ArtPen_WellType in @wellType ";
                 vars.wellType = types;
