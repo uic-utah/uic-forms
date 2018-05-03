@@ -18,11 +18,12 @@ table_to_view = {
     'UICEnforcement': 'Enforcement_view',
     'UICViolation': 'Violation_view',
     'UICInspection': 'Inspection_view',
-    'UICMIT': 'Mit_view'
+    'UICMIT': 'Mit_view',
+    'UICARTPEN': 'Artificial_view'
 }
 
 #: if you are missing views this is how to create them
-# tables = arcpy.ListTables() + arcpy.ListFeatureClasses() + arcpy.ListDatasets()
+tables = arcpy.ListTables() + arcpy.ListFeatureClasses() + arcpy.ListDatasets()
 # for table in tables:
 #     print('unregistering {}'.format(table))
 #     arcpy.management.UnregisterAsVersioned(table, keep_edit='NO_KEEP_EDIT', compress_default='COMPRESS_DEFAULT')
