@@ -588,9 +588,53 @@ WHERE
             }
         }
 
-        public int NoOp(QueryParams options)
+        public int GetArtificialPenetrations(QueryParams options)
         {
-            return 0;
+            var types = options.WellType as int[] ?? options.WellType.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+            vars.end = _endDate;
+
+            var query = @"SELECT 
+               COUNT(DISTINCT(Artificial_view.OBJECTID))
+               FROM 
+                   Artificial_view 
+               LEFT OUTER JOIN Well_view 
+                   ON Artificial_view.GUID = Well_view.AOR_FK 
+               WHERE 
+                  Well_view.wellClass = @wellClass ";
+
+            if (options.CaType > 0)
+            {
+                query += "AND Artificial_view.ArtPen_CAType = @catype ";
+                query += "AND Artificial_view.ArtPen_CADate BETWEEN @start AND @end ";
+                vars.catype = options.CaType;
+            }
+            else
+            {
+                query += "AND Artificial_view.ArtPen_ReviewDate BETWEEN @start AND @end ";
+            }
+
+            if (options.Ident4Ca)
+            {
+                query += "AND Artificial_view.Ident4CA = @yes ";
+                vars.yes = 1;
+            }
+
+            if (options.WellType.Count() == 1)
+            {
+                query += "AND Artificial_view.ArtPen_WellType = @wellType ";
+                vars.wellType = types[0];
+            }
+            else
+            {
+                query += "AND Artificial_view.ArtPen_WellType in @wellType ";
+                vars.wellType = types;
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
         }
     }
 }
