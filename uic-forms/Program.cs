@@ -63,7 +63,7 @@ namespace uic_forms
 
             _logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
             _logger.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
-                              options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
+                                options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
             _logger.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate))
@@ -125,7 +125,7 @@ namespace uic_forms
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}A",
                                                        new QueryParams
                                                        {
-                                                           WellType = new [] {1}
+                                                           WellType = new[] {1}
                                                        }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}O",
                                                        new QueryParams
@@ -141,7 +141,7 @@ namespace uic_forms
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}O",
                                                        new QueryParams
                                                        {
-                                                           WellType = new[] { 2, 3 },
+                                                           WellType = new[] {2, 3},
                                                            Ident4Ca = true
                                                        }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
@@ -186,74 +186,96 @@ namespace uic_forms
 
                     SetHeader(fields, options);
 
-                    var formInfo = new List<InputMonad>
+                    var formInfo = new List<InputMonad>();
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetWellViolationCount, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
-                        new InputMonad("VA_1", new QueryParams(1), sevenFiveTwenty.GetWellViolationCount),
-                        new InputMonad("VB1_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"UI"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB2_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"MI", "MO"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB3_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"OM"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB4_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"PA"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB5_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"MR"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB6_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"IP", "FO", "FA", "FI", "FR", "OT"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VIA_1", new QueryParams(1), sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB1_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"NOV"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB2_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"CGT"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB3_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"DAO", "FAO"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB4_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"CIR"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB5_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"CRR"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB6_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"SHT"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB7_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"PSE"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIB8_1", new QueryParams(1)
-                        {
-                            EnforcementTypes = new[] {"INF", "TOA", "OTR"}
-                        }, sevenFiveTwenty.GetWellsWithEnforcements),
-                        new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetWellsReturnedToCompliance),
-                        new InputMonad("VIIB_1", new QueryParams(1)
-                                       {
-                                           StartDate = options.StartDate
-                                       },
-                                       sevenFiveTwenty.GetWellsReturnedToCompliance),
-                        new InputMonad("VIII_1", new QueryParams(1), sevenFiveTwenty.GetContaminationViolations)
-                    };
+                        ViolationTypes = new[] {"UI"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"MI", "MO"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"OM"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[]
+                            {"PA"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"MR"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB6_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"IP", "FO", "FA", "FI", "FR", "OT"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB1_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"NOV"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB2_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"CGT"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB3_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"DAO", "FAO"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB4_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"CIR"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB5_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"CRR"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB6_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"SHT"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB7_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"PSE"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB8_{class}", new QueryParams
+                    {
+                        EnforcementTypes = new[] {"INF", "TOA", "OTR"}
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB_{class}", new QueryParams
+                                                       {
+                                                           StartDate = options.StartDate
+                                                       },
+                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIII_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetContaminationViolations, ref formInfo);
+
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
 
@@ -571,15 +593,17 @@ namespace uic_forms
 
                     foreach (var violation in violations)
                     {
-                        _logger.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(), violation.EsriId);
+                        _logger.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(),
+                                      violation.EsriId);
                         int days;
-                        if (violation.ReturnToComplianceDate.HasValue && violation.ReturnToComplianceDate.Value < options.EndDate)
+                        if (violation.ReturnToComplianceDate.HasValue &&
+                            violation.ReturnToComplianceDate.Value < options.EndDate)
                         {
                             // Yes return to compliance date
                             _logger.Write("  ReturnToComplianceDate - Yes");
                             days = (violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days;
                             _logger.Write("  return to compliance date of {0}",
-                                        violation.ReturnToComplianceDate.Value.ToShortDateString());
+                                          violation.ReturnToComplianceDate.Value.ToShortDateString());
                             _logger.Write("  {0} days of violation", days);
 
                             if (days < 180)
@@ -732,7 +756,8 @@ namespace uic_forms
                                          fields);
                         }
 
-                        if (violation.ReturnToComplianceDate.HasValue && violation.ReturnToComplianceDate.Value <= options.EndDate)
+                        if (violation.ReturnToComplianceDate.HasValue &&
+                            violation.ReturnToComplianceDate.Value <= options.EndDate)
                         {
                             SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"),
                                          fields);
@@ -756,7 +781,7 @@ namespace uic_forms
             }
 
             _logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
-                              options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
+                                options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             _logger.AlwaysWrite("Finished: {0}", start.Elapsed);
         }
 
