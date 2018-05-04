@@ -133,12 +133,12 @@ namespace uic_forms.services
 
         public int GetWellViolationCount(QueryParams options)
         {
-            const string query = "SELECT count(Well_view.OBJECTID) " +
-                                 "FROM Violation_view " +
-                                 "INNER JOIN Well_view " +
-                                 "ON Violation_view.Well_FK = Well_view.GUID " +
-                                 "WHERE Violation_view.ViolationDate >= @start " +
-                                 "AND Well_view.WellClass = @wellClass";
+            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+                                 FROM Violation_view
+                                 INNER JOIN Well_view
+                                     ON Violation_view.Well_FK = Well_view.GUID
+                                 WHERE Violation_view.ViolationDate >= @start
+                                     AND Well_view.WellClass = @wellClass";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
