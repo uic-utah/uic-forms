@@ -622,7 +622,6 @@ namespace uic_forms
                             }
 
                             _logger.Write("including");
-                            violation.ReturnToCompliance = true;
 
                             include.Add(violation);
                         }
@@ -703,8 +702,6 @@ namespace uic_forms
                                     }
 
                                     _logger.Write("including");
-
-                                    violation.Enforcement = true;
 
                                     include.Add(violation);
                                 }

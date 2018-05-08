@@ -11,7 +11,5 @@ namespace uic_forms.models
         public DateTime? ReturnToComplianceDate { get; set; }
         public DateTime? EnforcementDate { get; set; }
         public string EnforcementType { get; set; }
-        public bool ReturnToCompliance { get; set; }
-        public bool Enforcement { get; set; }
     }
 }
