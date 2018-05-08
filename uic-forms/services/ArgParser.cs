@@ -1,121 +1,105 @@
-﻿namespace uic_forms.services
+﻿using InquirerCS;
+
+namespace uic_forms.services
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
-    using System.Reflection;
     using models;
-    using Mono.Options;
 
     internal static class ArgParserService
     {
-        internal static CliOptions Parse(string[] args)
+        internal static CliOptions Parse()
         {
             var options = new CliOptions();
-            var showHelp = false;
 
-            var p = new OptionSet
+            Inquirer.Prompt(Question.Input<DateTime>("Reporting Start Date")
+                                    .WithDefaultValue(new DateTime(DateTime.Now.Year, 10, 1)))
+                    .Bind(() => options.StartDate);
+
+            Inquirer.Prompt(Question.List("Which quarter would you like to report",
+                                          new[] { "1st", "2nd", "3rd", "4th" })).Then(quarter =>
             {
+                switch (quarter)
                 {
-                    "s|start=", "REQUIRED. The date you want to start evaluating for the forms. eg: mm/dd/yyyy",
-                    v => options.StartDate = DateTime.Parse(v)
-                },
-                {
-                    "e|end=", "Defaults to today. The date you want to start evaluating for the forms. eg: mm/dd/yyyy",
-                    v => options.EndDate = DateTime.Parse(v)
-                },
-                {
-                    "t|templates=", "File location of where the pdf templates are. eg: c:\\7520\\pdfs",
-                    v => options.TemplateLocation = v
-                },
-                {
-                    "o|output=",
-                    "the location to save the output of this tool. eg: c:\\temp. Defaults to current working directory",
-                    v => options.OutputPath = v
-                },
-                {
-                    "v|verbose", "increase the debug message verbosity.",
-                    v =>
+                    case "1st":
                     {
-                        if (v != null)
-                        {
-                            options.Verbose = true;
-                        }
+                        options.EndDate = new DateTime(DateTime.Now.Year, 12, 31);
+                        break;
                     }
-                },
-                {
-                    "h|help", "show this message and exit",
-                    v => showHelp = v != null
+                    case "2nd":
+                    {
+                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 3, 31);
+                        break;
+                    }
+                    case "3rd":
+                    {
+                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 6, 30);
+                        break;
+                    }
+                    case "4th":
+                    {
+                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 8, 30);
+                        break;
+                    }
                 }
-            };
+            });
 
-            try
-            {
-                p.Parse(args);
-            }
-            catch (OptionException e)
-            {
-                Console.Write("uic-forms: ");
-                Console.WriteLine(e.Message);
-                ShowHelp(p);
+            Inquirer.Prompt(Question.Input("What is the file path to the 7520 PDF forms?")
+                                    .WithDefaultValue(@"C:\Projects\GitHub\uic-7520\templates")
+                                    .WithValidation(path =>
+                                    {
+                                        if (new DirectoryInfo(path).Exists)
+                                        {
+                                            return true;
+                                        }
 
-                return null;
-            }
+                                        var cwd = Directory.GetCurrentDirectory();
+                                        var location = Path.Combine(cwd, path.TrimStart('\\'));
 
-            if (showHelp)
-            {
-                ShowHelp(p);
+                                        return new DirectoryInfo(location).Exists;
+                                    }, "The location for the pdf files could not be found. Try again."))
+                    .Bind(() => options.TemplateLocation);
 
-                return null;
-            }
+            Inquirer.Prompt(Question.Input("Where would you like the forms saved?")
+                                    .WithDefaultValue(@"C:\temp"))
+                    .Then(path =>
+                    {
+                        if (new DirectoryInfo(path).Exists)
+                        {
+                            options.OutputPath = path;
+                            return;
+                        }
 
-            if (options.StartDate == null)
-            {
-                throw new InvalidOperationException("Missing required option `-s` for the start date.");
-            }
+                        var cwd = Directory.GetCurrentDirectory();
+                        var location = Path.Combine(cwd, path.TrimStart('\\'));
 
-            if (string.IsNullOrEmpty(options.TemplateLocation))
-            {
-                throw new InvalidOperationException("Missing required option -t for the location of the 7520 template pdf's.");
-            }
+                        if (new DirectoryInfo(location).Exists)
+                        {
+                            options.OutputPath = path;
+                            return;
+                        }
 
-            if (!new DirectoryInfo(options.TemplateLocation).Exists)
-            {
-                var cwd = Directory.GetCurrentDirectory();
-                var location = Path.Combine(cwd, options.TemplateLocation.TrimStart('\\'));
+                        Inquirer.Prompt(Question.Confirm("The location does not exist. Create it now?")
+                                                .WithDefaultValue(true))
+                                .Then(yes =>
+                                {
+                                    if (!yes)
+                                    {
+                                        return;
+                                    }
 
-                if (!new DirectoryInfo(location).Exists)
-                {
-                    throw new InvalidOperationException("The location for the pdf files could not be found.");
-                }
+                                    Directory.CreateDirectory(path);
+                                    options.OutputPath = path;
+                                });
+                    });
 
-                options.TemplateLocation = location;
-            }
+            Inquirer.Prompt(Question.Confirm("Would you like to see the debug output?")
+                                    .WithDefaultValue(false))
+                    .Bind(() => options.Verbose);
 
-            // TODO: check for the pdf files
-
-            if (showHelp)
-            {
-                ShowHelp(p);
-            }
+            Inquirer.Go();
 
             return options;
-        }
-
-        private static void ShowHelp(OptionSet p)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            {
-                var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-
-                Console.WriteLine("UIC Forms Tool : {0}", fvi.FileVersion);
-            }
-
-            Console.WriteLine("Usage: uicforms [OPTIONS]+");
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-
-            p.WriteOptionDescriptions(Console.Out);
         }
     }
 }

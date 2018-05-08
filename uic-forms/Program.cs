@@ -16,46 +16,18 @@ namespace uic_forms
     {
         private static Logger _logger;
 
-        private static void Main(string[] args)
+        private static void Main()
         {
-            var options = new CliOptions();
-            try
+            var options = ArgParserService.Parse();
 
+            Console.WriteLine();
+
+            if (options.OutputPath == null || !Directory.Exists(options.OutputPath))
             {
-                options = ArgParserService.Parse(args);
-                if (options == null)
-                {
-                    return;
-                }
-            }
-            catch (InvalidOperationException e)
-            {
-                Console.Write("uic-forms: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("press any key to continue");
-                Console.ReadKey();
-            }
+                Console.WriteLine("uic-etl: ");
+                Console.WriteLine("output does not exist. exiting.");
 
-            if (!Directory.Exists(options?.OutputPath))
-            {
-                Console.Write("uic-forms: ");
-                Console.WriteLine("{0} does not exists. Do you want to create it now? (Y/n)", options.OutputPath);
-                var key = Console.ReadKey();
-
-                DirectoryInfo output = null;
-                if (new[] {ConsoleKey.Enter, ConsoleKey.Y}.Contains(key.Key))
-                {
-                    output = Directory.CreateDirectory(options.OutputPath);
-                }
-
-                if (output == null || !output.Exists)
-                {
-                    Console.Write("uic-etl: ");
-                    Console.WriteLine("output does not exist. exiting.");
-                    Console.ReadKey();
-
-                    return;
-                }
+                return;
             }
 
             _logger = new Logger(options.Verbose);
