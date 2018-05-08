@@ -636,6 +636,70 @@ WHERE
 
             return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
+
+        public string CalculatePercentResolved(QueryParams options)
+        {
+            var query = @"SELECT Violation_view.OBJECTID as esriid,
+                            Violation_view.ViolationDate
+                        FROM Violation_view 
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
+                        WHERE Well_view.WellClass = @wellClass
+                            AND Violation_view.ViolationType in ('MI', 'MO')";
+
+            var violations = _connection.Query<ViolationModel>(query, new
+            {
+                wellClass = options.WellClass
+            });
+
+            var a = 0;
+            var b = 0;
+
+            // In UICWell fc attribute table, WellClass code = '1'.   
+            // A = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI or MO' AND 
+            // ViolationDate is between (start - 90 days) and end  
+
+            // B = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI or MO' AND 
+            // ViolationDate is between (start - 90 days) and end AND 
+            // ReturnToComplianceDate is between (inclusive) start and end AND  
+            // ReturnToComplianceDate - ViolationDate for ViolationType is less than 90 days.  
+            // Percentage = 100 x (B/A)
+
+            foreach (var violation in violations)
+            {
+                var violationDate = violation.ViolationDate;
+
+                if (violationDate < _endDate && 
+                    violationDate > _startDate - TimeSpan.FromDays(90))
+                {
+                    a += 1;
+                }
+
+                if (!violation.ReturnToComplianceDate.HasValue)
+                {
+                    continue;
+                }
+
+                var returnToComplianceDate = violation.ReturnToComplianceDate.Value;
+
+                if (violationDate < _endDate &&
+                    violationDate > _startDate - TimeSpan.FromDays(90) &&
+                    returnToComplianceDate > _startDate &&
+                    returnToComplianceDate < _endDate &&
+                    (returnToComplianceDate - violationDate).Days < TimeSpan.FromDays(90).Days)
+                {
+                    b += 1;
+                }
+            }
+
+            if (a == 0 || b == 0)
+            {
+                return 0.ToString();
+            }
+
+            return $"{Math.Round((decimal) (b / a * 100), 2)}%";
         }
     }
 }

@@ -278,6 +278,9 @@ namespace uic_forms
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIII_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetContaminationViolations, ref formInfo);
 
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "IX_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.CalculatePercentResolved, ref formInfo);
+
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
 
