@@ -6,7 +6,7 @@ namespace uic_forms.models
 {
     internal class InputMonad
     {
-        public InputMonad(string id, QueryParams @params, Func<QueryParams, int> query)
+        public InputMonad(string id, QueryParams @params, Func<QueryParams, string> query)
         {
             Id = id;
             Params = @params;
@@ -20,13 +20,13 @@ namespace uic_forms.models
 
         public string Id { get; set; }
         public QueryParams Params { get; set; }
-        public Func<QueryParams, int> Query { get; set; }
+        public Func<QueryParams, string> Query { get; set; }
     }
 
      internal static class InputMonadGenerator
     {
         internal static void CreateMonadFor(IEnumerable<int> wellClasses, string id, QueryParams options,
-                                               Func<QueryParams, int> query, ref List<InputMonad> list)
+                                               Func<QueryParams, string> query, ref List<InputMonad> list)
         {
             if (!wellClasses.Any())
             {

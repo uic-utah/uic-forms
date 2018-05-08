@@ -34,7 +34,7 @@ namespace uic_forms.services
             _connection?.Dispose();
         }
 
-        public int GetPermitCount(QueryParams options)
+        public string GetPermitCount(QueryParams options)
         {
             // In UICWell.WellClass = '1' 
             // AND UICAuthorization.AuthorizationType = 'IP, AP, GP, EP, OP' 
@@ -83,10 +83,10 @@ namespace uic_forms.services
 
             var variables = (object) vars;
 
-            return _connection.QueryFirstOrDefault<int>(query, variables);
+            return _connection.QueryFirstOrDefault<int>(query, variables).ToString();
         }
 
-        public int GetWellPermitCount(QueryParams options)
+        public string GetWellPermitCount(QueryParams options)
         {
             var actionTypes = options.AuthActionTypes as string[] ?? options.AuthActionTypes.ToArray();
             var types = options.AuthTypes as string[] ?? options.AuthTypes.ToArray();
@@ -128,10 +128,10 @@ namespace uic_forms.services
 
             var variables = (object) vars;
 
-            return _connection.QueryFirstOrDefault<int>(query, variables);
+            return _connection.QueryFirstOrDefault<int>(query, variables).ToString();
         }
 
-        public int GetWellViolationCount(QueryParams options)
+        public string GetWellViolationCount(QueryParams options)
         {
             const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
                                  FROM Violation_view
@@ -144,10 +144,10 @@ namespace uic_forms.services
             {
                 start = _startDate,
                 wellClass = options.WellClass
-            });
+            }).ToString();
         }
 
-        public int GetViolationCount(QueryParams options)
+        public string GetViolationCount(QueryParams options)
         {
             var types = options.ViolationTypes as string[] ?? options.ViolationTypes.ToArray();
 
@@ -155,12 +155,12 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
 
-            var query = "SELECT COUNT(DISTINCT(Violation_view.GUID)) " +
-                        "FROM Violation_view " +
-                        "INNER JOIN Well_view " +
-                        "ON Violation_view.Well_FK = Well_view.GUID " +
-                        "WHERE Violation_view.ViolationDate >= @start " +
-                        "AND Well_view.WellClass = @wellClass ";
+            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
+                        FROM Violation_view 
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
+                        WHERE Violation_view.ViolationDate >= @start 
+                            AND Well_view.WellClass = @wellClass ";
 
             if (types.Length == 1)
             {
@@ -179,26 +179,26 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int GetWellsWithEnforcements(QueryParams options)
+        public string GetWellsWithEnforcements(QueryParams options)
         {
             var types = options.EnforcementTypes as string[] ?? options.EnforcementTypes.ToArray();
             dynamic vars = new ExpandoObject();
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM UICViolationToEnforcement_evw " +
-                        "INNER JOIN Enforcement_view " +
-                        "ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID " +
-                        "INNER JOIN Violation_view " +
-                        "ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID " +
-                        "INNER JOIN Well_view " +
-                        "ON Violation_view.Well_FK = Well_view.GUID " +
-                        "WHERE Enforcement_view.EnforcementDate >= @start " +
-                        "AND Well_view.WellClass = @wellClass ";
+            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
+                        FROM UICViolationToEnforcement_evw 
+                        INNER JOIN Enforcement_view 
+                            ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID 
+                        INNER JOIN Violation_view
+                            ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID
+                        WHERE Enforcement_view.EnforcementDate >= @start 
+                            AND Well_view.WellClass = @wellClass ";
 
             if (types.Length == 1)
             {
@@ -217,10 +217,10 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int GetWellsReturnedToCompliance(QueryParams options)
+        public string GetWellsReturnedToCompliance(QueryParams options)
         {
             var query = "SELECT COUNT(Well_view.OBJECTID) " +
                         "FROM Violation_view " +
@@ -240,10 +240,10 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int GetContaminationViolations(QueryParams options)
+        public string GetContaminationViolations(QueryParams options)
         {
             dynamic vars = new ExpandoObject();
             vars.wellClass = options.WellClass;
@@ -264,10 +264,10 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int SncViolations(QueryParams options)
+        public string SncViolations(QueryParams options)
         {
             const string query = "SELECT COUNT(Well_view.OBJECTID) " +
                                  "FROM Well_view " +
@@ -282,10 +282,10 @@ namespace uic_forms.services
                 wellClass = options.WellClass,
                 start = _startDate,
                 compliance = "Y"
-            });
+            }).ToString();
         }
 
-        public int GetWellsInspected(QueryParams options)
+        public string GetWellsInspected(QueryParams options)
         {
             const string query = "SELECT COUNT(Well_view.OBJECTID) " +
                                  "FROM Well_view " +
@@ -299,10 +299,10 @@ namespace uic_forms.services
             {
                 wellClass = options.WellClass,
                 start = _startDate
-            });
+            }).ToString();
         }
 
-        public int GetInspections(QueryParams options)
+        public string GetInspections(QueryParams options)
         {
             var types = options.InspectionType as string[] ?? options.InspectionType.ToArray();
 
@@ -329,10 +329,10 @@ namespace uic_forms.services
                 vars.inspectionType = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int GetMechIntegrityWells(QueryParams options)
+        public string GetMechIntegrityWells(QueryParams options)
         {
             var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
             var results = options.MitResult as string[] ?? options.MitResult.ToArray();
@@ -370,10 +370,10 @@ namespace uic_forms.services
                 vars.mitResult = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public int GetRemedialWells(QueryParams options)
+        public string GetRemedialWells(QueryParams options)
         {
             var types = options.RemedialAction as string[] ?? options.RemedialAction.ToArray();
 
@@ -399,7 +399,7 @@ namespace uic_forms.services
                 vars.action = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
         public IEnumerable<ViolationModel> GetViolations()
@@ -588,7 +588,7 @@ WHERE
             }
         }
 
-        public int GetArtificialPenetrations(QueryParams options)
+        public string GetArtificialPenetrations(QueryParams options)
         {
             var types = options.WellType as int[] ?? options.WellType.ToArray();
 
@@ -634,7 +634,8 @@ WHERE
                 vars.wellType = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars);
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+        }
         }
     }
 }
