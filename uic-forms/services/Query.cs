@@ -155,7 +155,7 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
 
-            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
+            var query = @"SELECT COUNT(DISTINCT(Violation_view.OBJECTID)) 
                         FROM Violation_view 
                         INNER JOIN Well_view 
                             ON Violation_view.Well_FK = Well_view.GUID 
@@ -222,16 +222,16 @@ namespace uic_forms.services
 
         public string GetWellsReturnedToCompliance(QueryParams options)
         {
-            var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM Violation_view " +
-                        "INNER JOIN Well_view " +
-                        "ON Violation_view.Well_FK = Well_view.GUID " +
-                        "WHERE(Well_view.WellClass = @wellClass) " +
-                        "AND (Violation_view.ReturnToComplianceDate BETWEEN @start AND @end) ";
+            var query = @"SELECT COUNT(Well_view.OBJECTID) 
+                        FROM Violation_view 
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
+                        WHERE(Well_view.WellClass = @wellClass) 
+                            AND (Violation_view.ReturnToComplianceDate BETWEEN @start AND @end) ";
 
             dynamic vars = new ExpandoObject();
             vars.wellClass = options.WellClass;
-            vars.start = options.StartDate ?? _endDate - TimeSpan.FromDays(30);
+            vars.start = options.StartDate ?? _endDate - TimeSpan.FromDays(90);
             vars.end = _endDate;
 
             if (options.Snc)
@@ -269,13 +269,13 @@ namespace uic_forms.services
 
         public string SncViolations(QueryParams options)
         {
-            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
-                                 "FROM Well_view " +
-                                 "INNER JOIN Violation_view " +
-                                 "ON Violation_view.Well_FK = Well_view.GUID " +
-                                 "WHERE Well_view.WellClass = @wellClass " +
-                                 "AND Violation_view.SignificantNonCompliance = @compliance " +
-                                 "AND Violation_view.ViolationDate >= @start";
+            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+                                 FROM Well_view 
+                                 INNER JOIN Violation_view 
+                                    ON Violation_view.Well_FK = Well_view.GUID 
+                                 WHERE Well_view.WellClass = @wellClass 
+                                    AND Violation_view.SignificantNonCompliance = @compliance 
+                                    AND Violation_view.ViolationDate >= @start";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
@@ -639,37 +639,40 @@ WHERE
 
         public string CalculatePercentResolved(QueryParams options)
         {
-            var query = @"SELECT Violation_view.OBJECTID as esriid,
-                            Violation_view.ViolationDate
+            const string query = @"SELECT Violation_view.OBJECTID as esriid,
+                            Violation_view.ViolationDate,
+                            Violation_view.ReturnToComplianceDate
                         FROM Violation_view 
                         INNER JOIN Well_view 
                             ON Violation_view.Well_FK = Well_view.GUID 
                         WHERE Well_view.WellClass = @wellClass
-                            AND Violation_view.ViolationType in ('MI', 'MO')";
+                            AND Violation_view.ViolationType = 'MI'";
 
             var violations = _connection.Query<ViolationModel>(query, new
             {
                 wellClass = options.WellClass
             });
 
-            var a = 0;
-            var b = 0;
+            var a = 0M;
+            var b = 0M;
 
-            // In UICWell fc attribute table, WellClass code = '1'.   
+            // WellClass code = '1'.   
             // A = Number of Violations where in the UICViolation tbl, 
-            // ViolationType code = 'MI or MO' AND 
-            // ViolationDate is between (start - 90 days) and end  
+            // ViolationType code = 'MI' AND 
+            // ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate  
 
             // B = Number of Violations where in the UICViolation tbl, 
-            // ViolationType code = 'MI or MO' AND 
-            // ViolationDate is between (start - 90 days) and end AND 
-            // ReturnToComplianceDate is between (inclusive) start and end AND  
-            // ReturnToComplianceDate - ViolationDate for ViolationType is less than 90 days.  
+            // ViolationType code = 'MI' 
+            // AND ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate 
+            // AND ReturnToComplianceDate is between (inclusive) ReportingFromDate and ReportingToDate 
+            // AND ReturnToComplianceDate - ViolationDate for ViolationType code = 'MI' is less than 90 days.   
+
             // Percentage = 100 x (B/A)
 
             foreach (var violation in violations)
             {
                 var violationDate = violation.ViolationDate;
+
 
                 if (violationDate < _endDate && 
                     violationDate > _startDate - TimeSpan.FromDays(90))
@@ -686,8 +689,8 @@ WHERE
 
                 if (violationDate < _endDate &&
                     violationDate > _startDate - TimeSpan.FromDays(90) &&
-                    returnToComplianceDate > _startDate &&
-                    returnToComplianceDate < _endDate &&
+                    returnToComplianceDate >= _startDate &&
+                    returnToComplianceDate <= _endDate &&
                     (returnToComplianceDate - violationDate).Days < TimeSpan.FromDays(90).Days)
                 {
                     b += 1;
@@ -699,7 +702,7 @@ WHERE
                 return 0.ToString();
             }
 
-            return $"{Math.Round((decimal) (b / a * 100), 2)}%";
+            return $"{Math.Round(b / a * 100, 2)}%";
         }
     }
 }
