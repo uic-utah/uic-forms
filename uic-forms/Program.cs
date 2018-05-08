@@ -176,25 +176,25 @@ namespace uic_forms
                     {
                         ViolationTypes = new[] {"OM", "IP"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-                    
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"PA"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-                    
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"MR", "FO", "FA", "FI", "FR"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-                    
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB6_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"OT"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-                    
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
-                    
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB1_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"NOV"}
