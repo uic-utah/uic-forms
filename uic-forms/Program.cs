@@ -762,6 +762,14 @@ namespace uic_forms
 
         private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)
         {
+            if (fields.Names.Contains("Preparer"))
+            {
+                SetFieldText("Preparer", "Candace C. Cady\r\nEnvironmental Scientist", fields);
+            }
+            if (fields.Names.Contains("Telephone"))
+            {
+                SetFieldText("Telephone", "801.536.4352", fields);
+            }
             if (fields.Names.Contains("DatePrepared"))
             {
                 SetFieldText("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
