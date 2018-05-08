@@ -202,23 +202,22 @@ namespace uic_forms
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"OM"}
+                        ViolationTypes = new[] {"OM", "IP"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
                     
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
-                        ViolationTypes = new[]
-                            {"PA"}
+                        ViolationTypes = new[] {"PA"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
                     
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"MR"}
+                        ViolationTypes = new[] {"MR", "FO", "FA", "FI", "FR"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
                     
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB6_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"IP", "FO", "FA", "FI", "FR", "OT"}
+                        ViolationTypes = new[] {"OT"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
                     
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
@@ -264,7 +263,10 @@ namespace uic_forms
                         EnforcementTypes = new[] {"INF", "TOA", "OTR"}
                     }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
 
-                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams(),
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams
+                                                       {
+                                                           StartDate = options.EndDate - TimeSpan.FromDays(90)
+                                                       },
                                                        sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB_{class}", new QueryParams
