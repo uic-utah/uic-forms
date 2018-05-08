@@ -23,22 +23,22 @@ namespace uic_forms.services
                 {
                     case "1st":
                     {
-                        options.EndDate = new DateTime(DateTime.Now.Year, 12, 31);
+                        options.EndDate = new DateTime(options.StartDate.Year, 12, 31);
                         break;
                     }
                     case "2nd":
                     {
-                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 3, 31);
+                        options.EndDate = new DateTime(options.StartDate.Year + 1, 3, 30);
                         break;
                     }
                     case "3rd":
                     {
-                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 6, 30);
+                        options.EndDate = new DateTime(options.StartDate.Year + 1, 6, 30);
                         break;
                     }
                     case "4th":
                     {
-                        options.EndDate = new DateTime(DateTime.Now.Year + 1, 8, 30);
+                        options.EndDate = new DateTime(options.StartDate.Year + 1, 8, 30);
                         break;
                     }
                     default: 
