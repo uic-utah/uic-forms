@@ -421,128 +421,130 @@ namespace uic_forms
 
                     na.ForEach(field => { SetFieldText(field, "NA", fields); });
 
-                    var formInfo = new List<InputMonad>
+                    var formInfo = new List<InputMonad>();
+
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetWellsInspected, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
-                        new InputMonad("VA_1", new QueryParams(1), sevenFiveTwenty.GetWellsInspected),
-                        new InputMonad("VB1_1", new QueryParams(1)
-                        {
-                            InspectionType = new[] {"MI"}
-                        }, sevenFiveTwenty.GetInspections),
-                        new InputMonad("VB2_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"EC"}
-                        }, sevenFiveTwenty.GetInspections),
-                        new InputMonad("VB3_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"CO"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB4_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"WP"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VB5_1", new QueryParams(1)
-                        {
-                            ViolationTypes = new[] {"RP"}
-                        }, sevenFiveTwenty.GetViolationCount),
-                        new InputMonad("VIA_1", new QueryParams(1), sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC1p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"AP"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC1f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"AP"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC2p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CT"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC2f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CT"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC3p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"MR"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC3f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"MR"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC4p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIC4f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID1p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CR"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID1f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CR"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID2p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"TN"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID2f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"TN"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID3p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"RC"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID3f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"RC"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID4p_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
-                            MitResult = new[] {"PS"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VID4f_1", new QueryParams(1)
-                        {
-                            MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
-                            MitResult = new[] {"FU", "FP", "FA"}
-                        }, sevenFiveTwenty.GetMechIntegrityWells),
-                        new InputMonad("VIIA_1", new QueryParams(1), sevenFiveTwenty.GetRemedialWells),
-                        new InputMonad("VIIB1_1", new QueryParams(1)
-                        {
-                            RemedialAction = new[] {"CS"}
-                        }, sevenFiveTwenty.GetRemedialWells),
-                        new InputMonad("VIIB2_1", new QueryParams(1)
-                        {
-                            RemedialAction = new[] {"TR", "PR"}
-                        }, sevenFiveTwenty.GetRemedialWells),
-                        new InputMonad("VIIB3_1", new QueryParams(1)
-                        {
-                            RemedialAction = new[] {"PA"}
-                        }, sevenFiveTwenty.GetRemedialWells),
-                        new InputMonad("VIIB4_1", new QueryParams(1)
-                        {
-                            RemedialAction = new[] {"OT"}
-                        }, sevenFiveTwenty.GetRemedialWells)
-                    };
+                        InspectionType = new[] {"MI"}
+                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"EC"}
+                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"CO"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"WP"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
+                    {
+                        ViolationTypes = new[] {"RP"}
+                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC1p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"AP"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC1f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"AP"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC2p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CT"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC2f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CT"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC3p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"MR"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC3f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"MR"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC4p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC4f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID1p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CR"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID1f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CR"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID2p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"TN"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID2f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"TN"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID3p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"RC"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID3f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"RC"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID4p_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
+                        MitResult = new[] {"PS"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID4f_{class}", new QueryParams
+                    {
+                        MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
+                        MitResult = new[] {"FU", "FP", "FA"}
+                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams(),
+                                                       sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB1_{class}", new QueryParams
+                    {
+                        RemedialAction = new[] {"CS"}
+                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB2_{class}", new QueryParams
+                    {
+                        RemedialAction = new[] {"TR", "PR"}
+                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB3_{class}", new QueryParams
+                    {
+                        RemedialAction = new[] {"PA"}
+                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB4_{class}", new QueryParams
+                    {
+                        RemedialAction = new[] {"OT"}
+                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
 
