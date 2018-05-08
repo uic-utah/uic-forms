@@ -557,7 +557,7 @@ WHERE
                     fields["FO_"] = true;
                     break;
                 case "FA":
-                    fields["FA_"] = true;
+                    fields["F_"] = true;
                     break;
                 case "OT":
                     fields["OV_"] = true;
