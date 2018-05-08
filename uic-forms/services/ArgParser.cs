@@ -41,6 +41,8 @@ namespace uic_forms.services
                         options.EndDate = new DateTime(DateTime.Now.Year + 1, 8, 30);
                         break;
                     }
+                    default: 
+                        throw new Exception("how did I get here?");
                 }
             });
 
