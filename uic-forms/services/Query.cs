@@ -718,5 +718,36 @@ WHERE
 
             return $"{Math.Round(b / a * 100, 2)}%";
         }
+
+        public string GetWellOperatingStatus(QueryParams options)
+        {
+            const string query = @"SELECT Enforcement_view.EnforcementDate,
+                Violation_view.objectid as esriid
+            FROM 
+                Violation_view
+            INNER JOIN Well_view 
+                ON Well_view.GUID = Violation_view.Well_FK
+            INNER JOIN UICWellOperatingStatus_evw 
+                ON UICWellOperatingStatus_evw.Well_FK = Well_view.GUID
+            LEFT OUTER JOIN UICViolationToEnforcement_evw 
+                ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
+            LEFT OUTER JOIN Enforcement_view 
+                ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID
+            WHERE Well_view.WellClass = @wellClass
+                AND Violation_view.SignificantNonCompliance = @yes
+                AND Violation_view.Endanger = @yes
+                AND UICWellOperatingStatus_evw.OperatingStatusType = @operatingType
+                AND UICWellOperatingStatus_evw.OperatingStatusDate >= @start";
+
+            var items = _connection.Query<QueryModel>(query, new
+            {
+                yes = 'Y',
+                operatingType = "PA",
+                start = _startDate,
+                wellClass = options.WellClass
+            });
+
+            return items.Count(x => x.EnforcementDate.HasValue == options.HasEnforcement).ToString();
+        }
     }
 }

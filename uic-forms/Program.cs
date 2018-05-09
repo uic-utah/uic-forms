@@ -377,6 +377,15 @@ namespace uic_forms
                         Snc = true
                     }, sevenFiveTwenty.GetContaminationViolations, ref formInfo);
 
+                    InputMonadGenerator.CreateMonadFor(new[] {4, 5}, "IX_{class}", new QueryParams
+                    {
+                        HasEnforcement = true
+                    }, sevenFiveTwenty.GetWellOperatingStatus, ref formInfo);
+                    InputMonadGenerator.CreateMonadFor(new[] {4, 5}, "IXV_{class}", new QueryParams
+                    {
+                        HasEnforcement = false
+                    }, sevenFiveTwenty.GetWellOperatingStatus, ref formInfo);
+
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
 
                     _logger.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);

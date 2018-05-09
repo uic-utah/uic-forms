@@ -26,6 +26,7 @@ namespace uic_forms.models
             WellType = queryParams.WellType;
             Ident4Ca = queryParams.Ident4Ca;
             CaType = queryParams.CaType;
+            HasEnforcement = queryParams.HasEnforcement;
         }
         public QueryParams(int wellClass)
         {
@@ -45,6 +46,7 @@ namespace uic_forms.models
         public IEnumerable<int> WellType { get; set; } = Enumerable.Empty<int>();
         public bool Snc { get; set; }
         public bool Ident4Ca { get; set; }
+        public bool HasEnforcement { get; set; }
         public int CaType { get; set; }
     }
 }
