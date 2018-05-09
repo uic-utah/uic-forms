@@ -2,7 +2,7 @@
 
 namespace uic_forms.models
 {
-    public class ViolationModel
+    public class QueryModel
     {
         public Guid Id { get; set; }
         public int EsriId { get; set; }

@@ -62,7 +62,7 @@
     <Compile Include="models\DomainModel.cs" />
     <Compile Include="models\InputMonad.cs" />
     <Compile Include="models\QueryParams.cs" />
-    <Compile Include="models\ViolationModel.cs" />
+    <Compile Include="models\QueryModel.cs" />
     <Compile Include="models\WellId.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

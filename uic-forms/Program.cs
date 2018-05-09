@@ -571,7 +571,7 @@ namespace uic_forms
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
                 {
                     var fields = document.AcroForm.Fields;
-                    var include = new Collection<ViolationModel>();
+                    var include = new Collection<QueryModel>();
                     var formalActions = new[] {"CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT"};
 
                     EnableUpdates(document.AcroForm);

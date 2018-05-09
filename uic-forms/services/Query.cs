@@ -402,7 +402,7 @@ namespace uic_forms.services
             return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
-        public IEnumerable<ViolationModel> GetViolations()
+        public IEnumerable<QueryModel> GetViolations()
         {
             const string query = @"SELECT 
             Violation_view.GUID as Id,
@@ -422,7 +422,7 @@ namespace uic_forms.services
             Violation_view.SignificantNonCompliance = @yes
             ORDER BY esriid";
 
-            return _connection.Query<ViolationModel>(query, new
+            return _connection.Query<QueryModel>(query, new
             {
                 yes = 'Y'
             });
@@ -648,7 +648,7 @@ WHERE
                         WHERE Well_view.WellClass = @wellClass
                             AND Violation_view.ViolationType = 'MI'";
 
-            var violations = _connection.Query<ViolationModel>(query, new
+            var violations = _connection.Query<QueryModel>(query, new
             {
                 wellClass = options.WellClass
             });
