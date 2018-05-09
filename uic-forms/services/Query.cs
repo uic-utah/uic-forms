@@ -287,13 +287,13 @@ namespace uic_forms.services
 
         public string GetWellsInspected(QueryParams options)
         {
-            const string query = "SELECT COUNT(Well_view.OBJECTID) " +
-                                 "FROM Well_view " +
-                                 "INNER JOIN Inspection_view " +
-                                 "ON Well_view.GUID = Inspection_view.Well_FK " +
-                                 "WHERE Well_view.WellClass = @wellClass AND " +
-                                 "Inspection_view.InspectionDate > @start AND " +
-                                 "Well_view.Facility_FK is NULL";
+            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+                                    FROM Well_view 
+                                 INNER JOIN Inspection_view 
+                                    ON Well_view.GUID = Inspection_view.Well_FK 
+                                 WHERE Well_view.WellClass = @wellClass 
+                                    AND Inspection_view.InspectionDate >= @start
+                                    AND Inspection_view.Facility_FK is NULL";
 
             return _connection.QueryFirstOrDefault<int>(query, new
             {
@@ -310,13 +310,12 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = "SELECT COUNT(DISTINCT(Inspection_view.OBJECTID)) " +
-                        "FROM Inspection_view " +
-                        "INNER JOIN Well_view " +
-                        "ON Well_view.GUID = Inspection_view.Well_FK " +
-                        "WHERE Well_view.WellClass = @wellClass AND " +
-                        "Inspection_view.InspectionDate > @start AND " +
-                        "Well_view.Facility_FK is NULL ";
+            var query = @"SELECT COUNT(DISTINCT(Inspection_view.OBJECTID)) 
+                            FROM Inspection_view 
+                        INNER JOIN Well_view 
+                            ON Well_view.GUID = Inspection_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Inspection_view.InspectionDate >= @start ";
 
             if (types.Length == 1)
             {
@@ -341,12 +340,12 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM Well_view " +
-                        "INNER JOIN Mit_view " +
-                        "ON Well_view.GUID = Mit_view.Well_FK " +
-                        "WHERE Well_view.WellClass = @wellClass AND " +
-                        "Mit_view.MITDate > @start ";
+            var query = @"SELECT COUNT(DISTINCT(Mit_view.OBJECTID))
+                            FROM Well_view
+                        INNER JOIN Mit_view
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Mit_view.MITDate >= @start ";
 
             if (types.Length == 1)
             {
@@ -362,12 +361,12 @@ namespace uic_forms.services
             if (results.Length == 1)
             {
                 query += "AND Mit_view.MITResult = @mitResult ";
-                vars.mitResult = types[0];
+                vars.mitResult = results[0];
             }
             else if (results.Length > 1)
             {
                 query += "AND Mit_view.MITResult in @mitResult ";
-                vars.mitResult = types;
+                vars.mitResult = results;
             }
 
             return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
@@ -375,18 +374,33 @@ namespace uic_forms.services
 
         public string GetRemedialWells(QueryParams options)
         {
+            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+                            FROM Well_view 
+                        INNER JOIN Mit_view
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Mit_view.MITRemActDate >= @start ";
+
+            return _connection.QueryFirstOrDefault<int>(query, new
+            {
+                start = _startDate,
+                wellClass = options.WellClass
+            }).ToString();
+        }
+        public string GetRemedials(QueryParams options)
+        {
             var types = options.RemedialAction as string[] ?? options.RemedialAction.ToArray();
 
             dynamic vars = new ExpandoObject();
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = "SELECT COUNT(Well_view.OBJECTID) " +
-                        "FROM Well_view " +
-                        "INNER JOIN Mit_view " +
-                        "ON Well_view.GUID = Mit_view.Well_FK " +
-                        "WHERE Well_view.WellClass = @wellClass AND " +
-                        "Mit_view.MITRemActDate > @start ";
+            var query = @"SELECT COUNT(DISTINCT(Mit_view.OBJECTID))
+                            FROM Well_view 
+                        INNER JOIN Mit_view
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Mit_view.MITRemActDate >= @start ";
 
             if (types.Length == 1)
             {
@@ -399,7 +413,7 @@ namespace uic_forms.services
                 vars.action = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            return _connection.QueryFirstOrDefault<int>(query, (object)vars).ToString();
         }
 
         public IEnumerable<QueryModel> GetViolations()
@@ -675,7 +689,7 @@ WHERE
 
 
                 if (violationDate < _endDate && 
-                    violationDate > _startDate - TimeSpan.FromDays(90))
+                    violationDate >= _startDate - TimeSpan.FromDays(90))
                 {
                     a += 1;
                 }
@@ -688,7 +702,7 @@ WHERE
                 var returnToComplianceDate = violation.ReturnToComplianceDate.Value;
 
                 if (violationDate < _endDate &&
-                    violationDate > _startDate - TimeSpan.FromDays(90) &&
+                    violationDate >= _startDate - TimeSpan.FromDays(90) &&
                     returnToComplianceDate >= _startDate &&
                     returnToComplianceDate <= _endDate &&
                     (returnToComplianceDate - violationDate).Days < TimeSpan.FromDays(90).Days)

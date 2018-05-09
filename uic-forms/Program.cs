@@ -442,20 +442,20 @@ namespace uic_forms
                     }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"EC"}
+                        InspectionType = new[] {"EC"}
                     }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"CO"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                        InspectionType = new[] {"CO"}
+                    }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"WP"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                        InspectionType = new[] {"WP"}
+                    }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
-                        ViolationTypes = new[] {"RP"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                        InspectionType = new[] {"RP"}
+                    }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC1p_{class}", new QueryParams
@@ -543,19 +543,19 @@ namespace uic_forms
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB1_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"CS"}
-                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB2_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"TR", "PR"}
-                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB3_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"PA"}
-                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB4_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"OT"}
-                    }, sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
 
