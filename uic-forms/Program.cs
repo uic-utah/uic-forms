@@ -18,7 +18,18 @@ namespace uic_forms
 
         private static void Main()
         {
+#if !DEBUG
             var options = ArgParserService.Parse();
+#else
+            var options = new CliOptions
+            {
+                EndDate = new DateTime(2018, 3, 31),
+                StartDate = new DateTime(2017, 10, 1),
+                OutputPath = "c:\\temp",
+                TemplateLocation = "C:\\Projects\\GitHub\\uic-7520\\templates",
+                Source = "udeq.agrc.utah.gov\\mspd14"
+            };
+#endif
 
             Console.WriteLine();
 
@@ -38,7 +49,7 @@ namespace uic_forms
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
             _logger.Write("Connecting to UDEQ...");
-            using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate))
+            using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate, options.Source))
             {
                 var formPaths = GetFormLocations(options, "7520-1");
                 _logger.AlwaysWrite("Loading template for the 7520-1 form...");

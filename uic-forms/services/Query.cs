@@ -16,11 +16,11 @@ namespace uic_forms.services
         private readonly DateTime _startDate;
         private readonly IEnumerable<DomainModel> _subClassLookup;
 
-        public Querier(DateTime startDate, DateTime endDate)
+        public Querier(DateTime startDate, DateTime endDate, string source)
         {
             _startDate = startDate;
             _endDate = endDate;
-            _connection = new SqlConnection("Data Source=udeq.agrc.utah.gov\\mspd14;" +
+            _connection = new SqlConnection($"Data Source={source};" +
                                             "Initial Catalog=UDEQ;" +
                                             "Persist Security Info=True;" +
                                             $"User ID={ConfigurationManager.AppSettings["username"]};" +

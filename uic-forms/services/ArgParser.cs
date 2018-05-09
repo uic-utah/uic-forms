@@ -12,11 +12,31 @@ namespace uic_forms.services
         {
             var options = new CliOptions();
 
+            Inquirer.Prompt(Question.List("Which database would you like to report from?",
+                new [] {"Production", "Staging"})).Then(configuration =>
+            {
+                switch (configuration)
+                {
+                    case "Production":
+                    {
+                        options.Source = "udeq.agrc.utah.gov";
+                        break;
+                    }
+                    case "Staging":
+                    {
+                        options.Source = "udeq.agrc.utah.gov\\mspd14";
+                        break;
+                    }
+                    default:
+                        throw new Exception("how did I get here?");
+                }
+            });
+
             Inquirer.Prompt(Question.Input<DateTime>("Reporting Start Date")
                                     .WithDefaultValue(new DateTime(DateTime.Now.Year, 10, 1)))
                     .Bind(() => options.StartDate);
 
-            Inquirer.Prompt(Question.List("Which quarter would you like to report",
+            Inquirer.Prompt(Question.List("Which quarter would you like to report?",
                                           new[] { "1st", "2nd", "3rd", "4th" })).Then(quarter =>
             {
                 switch (quarter)
