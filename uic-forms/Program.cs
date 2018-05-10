@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.AcroForms;
 using PdfSharp.Pdf.IO;
@@ -43,6 +44,7 @@ namespace uic_forms
             }
 
             _logger = new Logger(options.Verbose);
+            _logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
             var start = Stopwatch.StartNew();
 
             _logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
