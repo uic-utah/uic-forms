@@ -222,7 +222,7 @@ namespace uic_forms.services
 
         public string GetWellsReturnedToCompliance(QueryParams options)
         {
-            var query = @"SELECT COUNT(Well_view.OBJECTID) 
+            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
                         FROM Violation_view 
                         INNER JOIN Well_view 
                             ON Violation_view.Well_FK = Well_view.GUID 
@@ -387,6 +387,7 @@ namespace uic_forms.services
                 wellClass = options.WellClass
             }).ToString();
         }
+
         public string GetRemedials(QueryParams options)
         {
             var types = options.RemedialAction as string[] ?? options.RemedialAction.ToArray();
