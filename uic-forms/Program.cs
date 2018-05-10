@@ -707,30 +707,22 @@ namespace uic_forms
                         }
                     }
 
-                    // these are not static
-                    var checkboxFields = new List<string>
-                    {
-                        "UI_",
-                        "MI_",
-                        "IP_",
-                        "PA_",
-                        "FO_",
-                        "F_",
-                        "OV_",
-                        "NOV_",
-                        "CA_",
-                        "AO_",
-                        "CivR_",
-                        "CrimR_",
-                        "WSI_",
-                        "PS_",
-                        "OE_"
-                    };
                     // create a new page for every 9 wells?
                     const int pageSize = 9;
                     var row = 1;
                     foreach (var violation in include)
                     {
+                        var checkboxFields = new List<string>
+                        {
+                            "UI_",
+                            "MI_",
+                            "IP_",
+                            "PA_",
+                            "FO_",
+                            "F_",
+                            "OV_"
+                        };
+
                         if (row > pageSize)
                         {
                             _logger.AlwaysWrite("Too many violations skipping");
@@ -749,6 +741,16 @@ namespace uic_forms
                         {
                             SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"),
                                          fields);
+                            checkboxFields.AddRange(new [] {
+                                "NOV_",
+                                "CA_",
+                                "AO_",
+                                "CivR_",
+                                "CrimR_",
+                                "WSI_",
+                                "PS_",
+                                "OE_"
+                            });
                         }
 
                         if (violation.ReturnToComplianceDate.HasValue &&

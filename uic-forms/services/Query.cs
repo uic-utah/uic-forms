@@ -553,52 +553,60 @@ WHERE
                 violationId
             });
 
+            void SetValueIfExists(string field, bool value, ref Dictionary<string, bool> dict)
+            {
+                if (dict.ContainsKey(field))
+                {
+                    dict[field] = value;
+                }
+            }
+
             switch (type)
             {
                 case "UI":
-                    fields["UI_"] = true;
+                    SetValueIfExists("UI", true, ref fields);
                     break;
                 case "MI":
                 case "MO":
-                    fields["MI_"] = true;
+                    SetValueIfExists("MI_", true, ref fields);
                     break;
                 case "IP":
-                    fields["IP_"] = true;
+                    SetValueIfExists("IP_", true, ref fields);
                     break;
                 case "PA":
-                    fields["PA_"] = true;
+                    SetValueIfExists("PA_", true, ref fields);
                     break;
                 case "FO":
-                    fields["FO_"] = true;
+                    SetValueIfExists("FO_", true, ref fields);
                     break;
                 case "FA":
-                    fields["F_"] = true;
+                    SetValueIfExists("F_", true, ref fields);
                     break;
                 case "OT":
-                    fields["OV_"] = true;
+                    SetValueIfExists("OV_", true, ref fields);
                     break;
             }
 
             switch (enforcementType)
             {
                 case "NOV":
-                    fields["NOV_"] = true;
+                    SetValueIfExists("NOV_", true, ref fields);
                     break;
                 case "CGT":
-                    fields["CA_"] = true;
+                    SetValueIfExists("CA_", true, ref fields);
                     break;
                 case "DAO":
                 case "FAO":
-                    fields["AO_"] = true;
+                    SetValueIfExists("AO_", true, ref fields);
                     break;
                 case "CIR":
-                    fields["CivR_"] = true;
+                    SetValueIfExists("CivR_", true, ref fields);
                     break;
                 case "CRR":
-                    fields["CrimR_"] = true;
+                    SetValueIfExists("CrimR_", true, ref fields);
                     break;
                 case "SHT":
-                    fields["WSI_"] = true;
+                    SetValueIfExists("WSI_", true, ref fields);
                     break;
             }
         }
