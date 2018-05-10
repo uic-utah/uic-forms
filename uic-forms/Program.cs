@@ -27,10 +27,11 @@ namespace uic_forms
                 StartDate = new DateTime(2017, 10, 1),
                 OutputPath = "c:\\temp",
                 TemplateLocation = "C:\\Projects\\GitHub\\uic-7520\\templates",
-                Source = "udeq.agrc.utah.gov\\mspd14"
+                Source = "udeq.agrc.utah.gov\\mspd14",
+                Verbose = false
             };
 #endif
-
+            
             Console.WriteLine();
 
             if (options.OutputPath == null || !Directory.Exists(options.OutputPath))
@@ -780,6 +781,7 @@ namespace uic_forms
             _logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             _logger.AlwaysWrite("Finished: {0}", start.Elapsed);
+            Console.ReadLine();
         }
 
         private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)

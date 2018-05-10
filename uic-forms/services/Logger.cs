@@ -1,39 +1,50 @@
-﻿namespace uic_forms.services
-{
-    using System;
+﻿using System.IO;
+using System.Reflection;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Email;
 
+namespace uic_forms.services
+{
     internal class Logger
     {
-        private readonly bool _verbose;
+        private readonly Serilog.Core.Logger _log;
 
         internal Logger(bool verbose)
         {
-            _verbose = verbose;
+            var email = new EmailConnectionInfo
+            {
+                EmailSubject = "7520 Error",
+                FromEmail = "noreply@utah.gov",
+                ToEmail = "SGourley@utah.gov",
+                MailServer = "send.state.ut.us",
+                Port = 25
+            };
+
+            var logPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+                                       "7520.log-{{Date}}.txt");
+            var logLevel = LogEventLevel.Information;
+            if (verbose)
+            {
+                logLevel = LogEventLevel.Verbose;
+            }
+
+            _log = new LoggerConfiguration()
+                .WriteTo.Email(email, restrictedToMinimumLevel: LogEventLevel.Error)
+                .WriteTo.RollingFile(logPath)
+                .WriteTo.Console(logLevel)
+                .MinimumLevel.Verbose()
+                .CreateLogger();
         }
 
         internal void AlwaysWrite(string format, params object[] args)
         {
-            Console.Write(" # ");
-            Console.Write(format, args);
-
-            if (format.EndsWith("."))
-            {
-                Console.WriteLine();
-                return;
-            }
-
-            Console.Write("...");
-            Console.WriteLine();
+            _log.Information(format, args);
         }
 
         internal void Write(string format, params object[] args)
         {
-            if (!_verbose)
-            {
-                return;
-            }
-
-            AlwaysWrite(format, args);
+            _log.Verbose(format, args);
         }
     }
 }
