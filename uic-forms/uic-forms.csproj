@@ -68,7 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="services\ArgParser.cs" />
     <Compile Include="services\Logger.cs" />
-    <Compile Include="services\Query.cs" />
+    <Compile Include="services\Querier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AppTemplate.config" />
