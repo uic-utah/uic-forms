@@ -96,7 +96,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = "SELECT COUNT(Well_view.WellClass) " +
+            var query = "SELECT COUNT(DISTINCT(Well_view.WellClass)) " +
                         "FROM Permit_view INNER JOIN " +
                         "Well_view ON Permit_view.GUID = Well_view.Authorization_FK INNER JOIN " +
                         "Action_view ON Permit_view.GUID = Action_view.Authorization_FK " +
@@ -250,7 +250,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.contamination = "Y";
 
-            var query = "SELECT COUNT(Violation_view.OBJECTID) " +
+            var query = "SELECT COUNT(DISTINCT(Violation_view.OBJECTID)) " +
                         "FROM Well_view " +
                         "INNER JOIN Violation_view " +
                         "ON Violation_view.Well_FK = Well_view.GUID " +
