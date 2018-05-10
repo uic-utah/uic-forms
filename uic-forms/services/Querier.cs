@@ -564,7 +564,7 @@ WHERE
             switch (type)
             {
                 case "UI":
-                    SetValueIfExists("UI", true, ref fields);
+                    SetValueIfExists("UI_", true, ref fields);
                     break;
                 case "MI":
                 case "MO":
