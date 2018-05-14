@@ -32,11 +32,11 @@ namespace uic_forms.services
                 }
             });
 
-            Inquirer.Prompt(Question.Input<DateTime>("Reporting Start Date")
-                                    .WithDefaultValue(new DateTime(DateTime.Now.Year, 10, 1)))
-                    .Bind(() => options.StartDate);
+            Inquirer.Prompt(Question.Input<int>("Reporting start year")
+                                    .WithDefaultValue(DateTime.Now.Year))
+                    .Then(year => options.StartDate = new DateTime(year, 10, 1));
 
-            Inquirer.Prompt(Question.List("Which quarter would you like to report?",
+            Inquirer.Prompt(Question.List("Which federal fiscal year quarter would you like to report??",
                                           new[] { "1st", "2nd", "3rd", "4th" })).Then(quarter =>
             {
                 switch (quarter)
@@ -66,7 +66,7 @@ namespace uic_forms.services
                 }
             });
 
-            Inquirer.Prompt(Question.Input("What is the file path to the 7520 PDF forms?")
+            Inquirer.Prompt(Question.Input("What is the file path to the templates for the 7520 forms?")
                                     .WithDefaultValue(@"C:\Projects\GitHub\uic-7520\templates")
                                     .WithValidation(path =>
                                     {
@@ -116,7 +116,7 @@ namespace uic_forms.services
                     });
 
             Inquirer.Prompt(Question.Confirm("Would you like to see the debug output?")
-                                    .WithDefaultValue(false))
+                                    .WithDefaultValue(true))
                     .Bind(() => options.Verbose);
 
             Inquirer.Go();

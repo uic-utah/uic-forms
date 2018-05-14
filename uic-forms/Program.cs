@@ -43,7 +43,7 @@ namespace uic_forms
                 return;
             }
 
-            _logger = new Logger(options.Verbose);
+            _logger = new Logger(options.Verbose, options.OutputPath);
             _logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
             var start = Stopwatch.StartNew();
 

@@ -10,7 +10,7 @@ namespace uic_forms.services
     {
         private readonly Serilog.Core.Logger _log;
 
-        internal Logger(bool verbose)
+        internal Logger(bool verbose, string path)
         {
             var email = new EmailConnectionInfo
             {
@@ -21,9 +21,9 @@ namespace uic_forms.services
                 Port = 25
             };
 
-            var logPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                                       "7520.log-{{Date}}.txt");
+            var logPath = Path.Combine(path, "7520.{{Date}}.log.txt");
             var logLevel = LogEventLevel.Information;
+
             if (verbose)
             {
                 logLevel = LogEventLevel.Verbose;
