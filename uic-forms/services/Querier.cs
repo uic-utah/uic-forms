@@ -331,6 +331,47 @@ namespace uic_forms.services
             return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
         }
 
+        public string GetMechIntegrities(QueryParams options)
+        {
+            var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
+            var results = options.MitResult as string[] ?? options.MitResult.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+
+            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+                            FROM Well_view
+                        INNER JOIN Mit_view
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Mit_view.MITDate >= @start ";
+
+            if (types.Length == 1)
+            {
+                query += "AND Mit_view.MITType = @mitType ";
+                vars.mitType = types[0];
+            }
+            else if (types.Length > 1)
+            {
+                query += "AND Mit_view.mitType in @mitType ";
+                vars.mitType = types;
+            }
+
+            if (results.Length == 1)
+            {
+                query += "AND Mit_view.MITResult = @mitResult ";
+                vars.mitResult = results[0];
+            }
+            else if (results.Length > 1)
+            {
+                query += "AND Mit_view.MITResult in @mitResult ";
+                vars.mitResult = results;
+            }
+
+            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+        }
+
         public string GetMechIntegrityWells(QueryParams options)
         {
             var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
