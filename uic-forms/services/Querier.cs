@@ -649,6 +649,9 @@ WHERE
                 case "SHT":
                     SetValueIfExists("WSI_", true, ref fields);
                     break;
+                default:
+                    SetValueIfExists("OE_", true, ref fields);
+                    break;
             }
         }
 
