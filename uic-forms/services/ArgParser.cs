@@ -12,7 +12,7 @@ namespace uic_forms.services
         {
             var options = new CliOptions();
 
-            Inquirer.Prompt(Question.List("Which database would you like to report from?",
+            Inquirer.Prompt(Question.List("Which database would you like to report from",
                 new [] {"Production", "Staging"})).Then(configuration =>
             {
                 switch (configuration)
@@ -38,7 +38,7 @@ namespace uic_forms.services
                                     .WithDefaultValue(DateTime.Now.Year))
                     .Then(year => options.StartDate = new DateTime(year, 10, 1));
 
-            Inquirer.Prompt(Question.List("Which federal fiscal year quarter would you like to report??",
+            Inquirer.Prompt(Question.List("Which federal fiscal year quarter would you like to report",
                                           new[] { "1st", "2nd", "3rd", "4th" })).Then(quarter =>
             {
                 switch (quarter)
@@ -68,7 +68,7 @@ namespace uic_forms.services
                 }
             });
 
-            Inquirer.Prompt(Question.Input("What is the file path to the templates for the 7520 forms?")
+            Inquirer.Prompt(Question.Input("What is the file path to the templates for the 7520 forms")
                                     .WithDefaultValue(@"C:\Projects\GitHub\uic-7520\templates")
                                     .WithValidation(path =>
                                     {
@@ -84,7 +84,7 @@ namespace uic_forms.services
                                     }, "The location for the pdf files could not be found. Try again."))
                     .Bind(() => options.TemplateLocation);
 
-            Inquirer.Prompt(Question.Input("Where would you like the forms saved?")
+            Inquirer.Prompt(Question.Input("Where would you like the forms saved")
                                     .WithDefaultValue(@"C:\temp"))
                     .Then(path =>
                     {
@@ -117,7 +117,7 @@ namespace uic_forms.services
                                 });
                     });
 
-            Inquirer.Prompt(Question.Confirm("Would you like to see the debug output?")
+            Inquirer.Prompt(Question.Confirm("Would you like to see the debug output")
                                     .WithDefaultValue(true))
                     .Bind(() => options.Verbose);
 
