@@ -52,7 +52,7 @@ namespace uic_forms
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
             _logger.Write("Connecting to UDEQ...");
-            using (var sevenFiveTwenty = new Querier(options.StartDate, options.EndDate, options.Source))
+            using (var sevenFiveTwenty = new Querier(options))
             {
                 var formPaths = GetFormLocations(options, "7520-1");
                 _logger.AlwaysWrite("Loading template for the 7520-1 form...");

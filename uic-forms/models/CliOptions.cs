@@ -10,5 +10,6 @@
         public string TemplateLocation { get; set; }
         public string OutputPath { get; set; }
         public string Source { get; set; }
+        public string Password { get; set; }
     }
 }

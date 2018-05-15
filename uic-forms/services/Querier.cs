@@ -9,22 +9,22 @@ using uic_forms.models;
 
 namespace uic_forms.services
 {
-    public class Querier : IDisposable
+    internal class Querier : IDisposable
     {
         private readonly SqlConnection _connection;
         private readonly DateTime _endDate;
         private readonly DateTime _startDate;
         private readonly IEnumerable<DomainModel> _subClassLookup;
 
-        public Querier(DateTime startDate, DateTime endDate, string source)
+        internal Querier(CliOptions options)
         {
-            _startDate = startDate;
-            _endDate = endDate;
-            _connection = new SqlConnection($"Data Source={source};" +
+            _startDate = options.StartDate;
+            _endDate = options.EndDate;
+            _connection = new SqlConnection($"Data Source={options.Source};" +
                                             "Initial Catalog=UDEQ;" +
                                             "Persist Security Info=True;" +
                                             $"User ID={ConfigurationManager.AppSettings["username"]};" +
-                                            $"Password={ConfigurationManager.AppSettings["password"]}");
+                                            $"Password={ConfigurationManager.AppSettings[options.Password]}");
 
             _subClassLookup = GetDomainValuesFor("UICWellSubClassDomain");
         }

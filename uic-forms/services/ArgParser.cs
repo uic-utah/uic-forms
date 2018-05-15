@@ -20,11 +20,13 @@ namespace uic_forms.services
                     case "Production":
                     {
                         options.Source = "udeq.agrc.utah.gov";
+                        options.Password = "prod-pw";
                         break;
                     }
                     case "Staging":
                     {
                         options.Source = "udeq.agrc.utah.gov\\mspd14";
+                        options.Password = "stage-pw";
                         break;
                     }
                     default:
