@@ -100,7 +100,7 @@ namespace uic_forms
                                                        {
                                                            AuthTypes = new[]
                                                                {"IP", "AP", "GP", "EP", "OP"},
-                                                           AuthActionTypes = new[] {"PD"}
+                                                           AuthActionTypes = new[] {"PD", "MD", "TP"}
                                                        }, sevenFiveTwenty.GetPermitCount, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIE_{class}",
                                                        new QueryParams
