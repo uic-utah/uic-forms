@@ -466,7 +466,7 @@ namespace uic_forms
                     }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
-                        InspectionType = new[] {"RP"}
+                        InspectionType = new[] {"RP", "OT", "NW", "FI"}
                     }, sevenFiveTwenty.GetInspections, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetMechIntegrities, ref formInfo);
