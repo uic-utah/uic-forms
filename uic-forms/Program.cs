@@ -15,7 +15,7 @@ namespace uic_forms
 {
     internal class Program
     {
-        private static Logger _logger;
+        public static Logger Logger;
 
         private static void Main()
         {
@@ -29,7 +29,8 @@ namespace uic_forms
                 OutputPath = "c:\\temp",
                 TemplateLocation = "C:\\Projects\\GitHub\\uic-7520\\templates",
                 Source = "udeq.agrc.utah.gov\\mspd14",
-                Verbose = false
+                Verbose = false,
+                Password = "stage-pw"
             };
 #endif
             
@@ -43,19 +44,19 @@ namespace uic_forms
                 return;
             }
 
-            _logger = new Logger(options.Verbose, options.OutputPath);
-            _logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
+            Logger = new Logger(options.Verbose, options.OutputPath);
+            Logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
             var start = Stopwatch.StartNew();
 
-            _logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
-            _logger.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
+            Logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
+            Logger.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
 
-            _logger.Write("Connecting to UDEQ...");
+            Logger.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options))
             {
                 var formPaths = GetFormLocations(options, "7520-1");
-                _logger.AlwaysWrite("Loading template for the 7520-1 form...");
+                Logger.AlwaysWrite("Loading template for the 7520-1 form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -152,16 +153,16 @@ namespace uic_forms
                                                        }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
 
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
+                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
                     // Output the path for manual verification of result
-                    _logger.AlwaysWrite("Saving 7520-1 form to {0}", formPaths.Item2);
+                    Logger.AlwaysWrite("Saving 7520-1 form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
 
                 formPaths = GetFormLocations(options, "7520-2a");
-                _logger.AlwaysWrite("Loading template for the 7520-2a form...");
+                Logger.AlwaysWrite("Loading template for the 7520-2a form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -171,11 +172,11 @@ namespace uic_forms
                     EnableUpdates(document.AcroForm);
 
                     SetHeader(fields, options);
-
+//
                     var formInfo = new List<InputMonad>();
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellViolationCount, ref formInfo);
-
+//
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"UI"}
@@ -205,7 +206,7 @@ namespace uic_forms
                     {
                         ViolationTypes = new[] {"OT"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-
+//
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
 
@@ -265,18 +266,18 @@ namespace uic_forms
                                                        sevenFiveTwenty.GetContaminationViolations, ref formInfo);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "IX_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.CalculatePercentResolved, ref formInfo);
+                                                       sevenFiveTwenty.CalculatePercentResolved, ref formInfo, true);
+//
+//
+                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
-
-                    _logger.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
+                    Logger.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
-
+//
                 formPaths = GetFormLocations(options, "7520-2b");
-                _logger.AlwaysWrite("Loading template for the 7520-2b form...");
+                Logger.AlwaysWrite("Loading template for the 7520-2b form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -389,15 +390,15 @@ namespace uic_forms
                         HasEnforcement = false
                     }, sevenFiveTwenty.GetWellOperatingStatus, ref formInfo);
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
+                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    _logger.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);
+                    Logger.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
 
                 formPaths = GetFormLocations(options, "7520-3");
-                _logger.AlwaysWrite("Loading template for the 7520-3 form...");
+                Logger.AlwaysWrite("Loading template for the 7520-3 form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -568,16 +569,16 @@ namespace uic_forms
                     {
                         RemedialAction = new[] {"OT"}
                     }, sevenFiveTwenty.GetRemedials, ref formInfo);
+//
+                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(x.Params), fields); });
-
-                    _logger.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
+                    Logger.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
 
                 formPaths = GetFormLocations(options, "7520-4");
-                _logger.AlwaysWrite("Loading template for the 7520-4 form...");
+                Logger.AlwaysWrite("Loading template for the 7520-4 form...");
 
                 using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
                 using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
@@ -594,115 +595,115 @@ namespace uic_forms
 
                     foreach (var violation in violations)
                     {
-                        _logger.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(),
+                        Logger.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(),
                                       violation.EsriId);
                         int days;
                         if (violation.ReturnToComplianceDate.HasValue &&
                             violation.ReturnToComplianceDate.Value < options.EndDate)
                         {
                             // Yes return to compliance date
-                            _logger.Write("  ReturnToComplianceDate - Yes");
+                            Logger.Write("  ReturnToComplianceDate - Yes");
                             days = (violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days;
-                            _logger.Write("  return to compliance date of {0}",
+                            Logger.Write("  return to compliance date of {0}",
                                           violation.ReturnToComplianceDate.Value.ToShortDateString());
-                            _logger.Write("  {0} days of violation", days);
+                            Logger.Write("  {0} days of violation", days);
 
                             if (days < 180)
                             {
-                                _logger.Write("  skipping because less than 180");
+                                Logger.Write("  skipping because less than 180");
                                 continue;
                             }
 
                             days = (options.EndDate - violation.ReturnToComplianceDate.Value).Days;
-                            _logger.Write("  {0} days since violation reporting", days);
+                            Logger.Write("  {0} days since violation reporting", days);
 
                             if (days > 90)
                             {
-                                _logger.Write("skipping because not within 90 day reporting period");
+                                Logger.Write("skipping because not within 90 day reporting period");
                                 continue;
                             }
 
-                            _logger.Write("including");
+                            Logger.Write("including");
 
                             include.Add(violation);
                         }
                         else
                         {
-                            _logger.Write("  ReturnToComplianceDate - No");
+                            Logger.Write("  ReturnToComplianceDate - No");
                             // No return to compliance date
                             if (string.IsNullOrEmpty(violation.EnforcementType))
                             {
                                 // No enforcement record
-                                _logger.Write("  Enforcement - No");
+                                Logger.Write("  Enforcement - No");
 
                                 // No return to compliance date
                                 days = (options.EndDate - violation.ViolationDate).Days;
-                                _logger.Write("  {0} days since violation reporting", days);
+                                Logger.Write("  {0} days since violation reporting", days);
 
                                 if (days < 180)
                                 {
-                                    _logger.Write("skipping because not within 180 day reporting period");
+                                    Logger.Write("skipping because not within 180 day reporting period");
                                     continue;
                                 }
 
-                                _logger.Write("including");
+                                Logger.Write("including");
 
                                 include.Add(violation);
                             }
                             else
                             {
                                 // Yes enforcement
-                                _logger.Write("  Enforcement - Yes");
-                                _logger.Write("  Enforcement type {0}", violation.EnforcementType);
+                                Logger.Write("  Enforcement - Yes");
+                                Logger.Write("  Enforcement type {0}", violation.EnforcementType);
 
                                 if (!formalActions.Contains(violation.EnforcementType))
                                 {
-                                    _logger.Write("  Formal Enforcement Action - No");
+                                    Logger.Write("  Formal Enforcement Action - No");
 
                                     days = (options.EndDate - violation.ViolationDate).Days;
-                                    _logger.Write("  {0} days since violation reporting", days);
+                                    Logger.Write("  {0} days since violation reporting", days);
 
                                     if (days < 180)
                                     {
-                                        _logger.Write("skipping because not within 180 day reporting period");
+                                        Logger.Write("skipping because not within 180 day reporting period");
                                         continue;
                                     }
 
-                                    _logger.Write("including");
+                                    Logger.Write("including");
 
                                     include.Add(violation);
                                 }
                                 else
                                 {
                                     // Yes formal action type
-                                    _logger.Write("  Formal Enforcement Action - Yes");
-                                    _logger.Write("  formal action type {0}", violation.EnforcementType);
+                                    Logger.Write("  Formal Enforcement Action - Yes");
+                                    Logger.Write("  formal action type {0}", violation.EnforcementType);
 
                                     if (!violation.EnforcementDate.HasValue)
                                     {
-                                        _logger.Write("skipping since no enforcement date");
+                                        Logger.Write("skipping since no enforcement date");
                                         continue;
                                     }
 
                                     days = (violation.EnforcementDate.Value - violation.ViolationDate).Days;
-                                    _logger.Write("  {0} days since enforcement", days);
+                                    Logger.Write("  {0} days since enforcement", days);
 
                                     if (days < 180)
                                     {
-                                        _logger.Write("skipping because not within 180 day period");
+                                        Logger.Write("skipping because not within 180 day period");
                                         continue;
                                     }
 
                                     days = (options.EndDate - violation.EnforcementDate.Value).Days;
-                                    _logger.Write("  {0} days since enforcement reporting period", days);
+                                    Logger.Write("  {0} days since enforcement reporting period", days);
 
                                     if (days > 90)
                                     {
-                                        _logger.Write("skipping because not within 90 day reporting period");
+                                        Logger.Write("skipping because not within 90 day reporting period");
                                         continue;
                                     }
 
-                                    _logger.Write("including");
+                                    Logger.Write("including");
 
                                     include.Add(violation);
                                 }
@@ -728,7 +729,7 @@ namespace uic_forms
 
                         if (row > pageSize)
                         {
-                            _logger.AlwaysWrite("Too many violations skipping");
+                            Logger.AlwaysWrite("Too many violations skipping");
                             continue;
                         }
 
@@ -774,15 +775,15 @@ namespace uic_forms
                         row += 1;
                     }
 
-                    _logger.AlwaysWrite("Saving 7520-4 form to {0}", formPaths.Item2);
+                    Logger.AlwaysWrite("Saving 7520-4 form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
             }
 
-            _logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
+            Logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
-            _logger.AlwaysWrite("Finished: {0}", start.Elapsed);
+            Logger.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadLine();
         }
 
@@ -845,7 +846,7 @@ namespace uic_forms
             }
             catch (Exception)
             {
-                _logger.AlwaysWrite("Cound not find field {0}. Skipping", field);
+                Logger.AlwaysWrite("Cound not find field {0}. Skipping", field);
             }
         }
 

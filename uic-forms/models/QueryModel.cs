@@ -2,8 +2,10 @@
 
 namespace uic_forms.models
 {
-    public class QueryModel
+    public struct QueryModel
     {
+        public Guid ItemId { get; set; }
+        public Guid FacilityId { get; set; }
         public Guid Id { get; set; }
         public int EsriId { get; set; }
         public Guid WellId { get; set; }

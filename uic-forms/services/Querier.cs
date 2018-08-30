@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using Dapper;
+using Serilog;
 using uic_forms.models;
 
 namespace uic_forms.services
@@ -15,6 +16,7 @@ namespace uic_forms.services
         private readonly DateTime _endDate;
         private readonly DateTime _startDate;
         private readonly IEnumerable<DomainModel> _subClassLookup;
+        private readonly Dictionary<dynamic, dynamic> _facilityLookup;
 
         internal Querier(CliOptions options)
         {
@@ -27,6 +29,8 @@ namespace uic_forms.services
                                             $"Password={ConfigurationManager.AppSettings[options.Password]}");
 
             _subClassLookup = GetDomainValuesFor("UICWellSubClassDomain");
+            _facilityLookup = _connection.Query("SELECT Guid, FacilityName from UICFacility_evw")
+                                         .ToDictionary(x => x.Guid, y => y.FacilityName);
         }
 
         public void Dispose()
@@ -34,13 +38,8 @@ namespace uic_forms.services
             _connection?.Dispose();
         }
 
-        public string GetPermitCount(QueryParams options)
+        public IReadOnlyCollection<string> GetPermitCount(QueryParams options)
         {
-            // In UICWell.WellClass = '1' 
-            // AND UICAuthorization.AuthorizationType = 'IP, AP, GP, EP, OP' 
-            // AND UICAuthorizationAction.AuthorizationActionType = 'PT' 
-            // AND UICAuthorizationAction.AuthorizatonActionDate is between ReportingFromDate and ReportingToDate
-
             var actionTypes = options.AuthActionTypes as string[] ?? options.AuthActionTypes.ToArray();
             var types = options.AuthTypes as string[] ?? options.AuthTypes.ToArray();
 
@@ -49,7 +48,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = @"SELECT COUNT(DISTINCT(Action_view.GUID))
+            var query = @"SELECT DISTINCT(Action_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                         FROM Action_view 
                         INNER JOIN Permit_view 
                             ON Action_view.Authorization_FK = Permit_view.GUID 
@@ -81,12 +80,18 @@ namespace uic_forms.services
 
             query += "AND Well_view.WellClass = @wellClass";
 
-            var variables = (object) vars;
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
 
-            return _connection.QueryFirstOrDefault<int>(query, variables).ToString();
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICAUTHORIZATIONACTION: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetWellPermitCount(QueryParams options)
+        public IReadOnlyCollection<string> GetWellPermitCount(QueryParams options)
         {
             var actionTypes = options.AuthActionTypes as string[] ?? options.AuthActionTypes.ToArray();
             var types = options.AuthTypes as string[] ?? options.AuthTypes.ToArray();
@@ -96,11 +101,13 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.end = _endDate;
 
-            var query = "SELECT COUNT(DISTINCT(Well_view.WellClass)) " +
-                        "FROM Permit_view INNER JOIN " +
-                        "Well_view ON Permit_view.GUID = Well_view.Authorization_FK INNER JOIN " +
-                        "Action_view ON Permit_view.GUID = Action_view.Authorization_FK " +
-                        "WHERE Well_view.WellClass = @wellClass ";
+            var query = @"SELECT DISTINCT(Well_view.GUID) as ItemId, Well_view.Facility_FK as FacilityId
+                        FROM Permit_view 
+                        INNER JOIN Well_view 
+                            ON Permit_view.GUID = Well_view.Authorization_FK 
+                        INNER JOIN Action_view 
+                            ON Permit_view.GUID = Action_view.Authorization_FK 
+                        WHERE Well_view.WellClass = @wellClass ";
 
             if (actionTypes.Length == 1)
             {
@@ -126,28 +133,98 @@ namespace uic_forms.services
 
             query += "AND Action_view.AuthorizationActionDate BETWEEN @start AND @end";
 
-            var variables = (object) vars;
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
 
-            return _connection.QueryFirstOrDefault<int>(query, variables).ToString();
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWell: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetWellViolationCount(QueryParams options)
+        public IReadOnlyCollection<string> GetWellViolationCount(QueryParams options)
         {
-            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+            const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                                  FROM Violation_view
                                  INNER JOIN Well_view
                                      ON Violation_view.Well_FK = Well_view.GUID
                                  WHERE Violation_view.ViolationDate >= @start
                                      AND Well_view.WellClass = @wellClass";
 
-            return _connection.QueryFirstOrDefault<int>(query, new
+            var result = _connection.Query<NarrativeMetadata>(query, new
             {
                 start = _startDate,
                 wellClass = options.WellClass
-            }).ToString();
+            });
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWell: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetViolationCount(QueryParams options)
+        public IReadOnlyCollection<string> GetArtificialPenetrations(QueryParams options)
+        {
+            var types = options.WellType as int[] ?? options.WellType.ToArray();
+
+            dynamic vars = new ExpandoObject();
+            vars.start = _startDate;
+            vars.wellClass = options.WellClass;
+            vars.end = _endDate;
+
+            var query = @"SELECT DISTINCT(Artificial_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
+               FROM 
+                   Artificial_view 
+               LEFT OUTER JOIN Well_view 
+                   ON Artificial_view.GUID = Well_view.AOR_FK 
+               WHERE 
+                  Well_view.wellClass = @wellClass ";
+
+            if (options.CaType > 0)
+            {
+                query += "AND Artificial_view.ArtPen_CAType = @catype ";
+                query += "AND Artificial_view.ArtPen_CADate BETWEEN @start AND @end ";
+                vars.catype = options.CaType;
+            }
+            else
+            {
+                query += "AND Artificial_view.ArtPen_ReviewDate BETWEEN @start AND @end ";
+            }
+
+            if (options.Ident4Ca)
+            {
+                query += "AND Artificial_view.Ident4CA = @yes ";
+                vars.yes = 1;
+            }
+
+            if (options.WellType.Count() == 1)
+            {
+                query += "AND Artificial_view.ArtPen_WellType = @wellType ";
+                vars.wellType = types[0];
+            }
+            else if (options.WellType.Count() > 1)
+            {
+                query += "AND Artificial_view.ArtPen_WellType in @wellType ";
+                vars.wellType = types;
+            }
+
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICARTPEN: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
+        }
+
+        public IReadOnlyCollection<string> GetViolationCount(QueryParams options)
         {
             var types = options.ViolationTypes as string[] ?? options.ViolationTypes.ToArray();
 
@@ -155,7 +232,7 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
 
-            var query = @"SELECT COUNT(DISTINCT(Violation_view.OBJECTID)) 
+            var query = @"SELECT DISTINCT(Violation_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                         FROM Violation_view 
                         INNER JOIN Well_view 
                             ON Violation_view.Well_FK = Well_view.GUID 
@@ -179,17 +256,25 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICVIOLATION: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetWellsWithEnforcements(QueryParams options)
+        public IReadOnlyCollection<string> GetWellsWithEnforcements(QueryParams options)
         {
             var types = options.EnforcementTypes as string[] ?? options.EnforcementTypes.ToArray();
             dynamic vars = new ExpandoObject();
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
+            var query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId 
                         FROM UICViolationToEnforcement_evw 
                         INNER JOIN Enforcement_view 
                             ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID 
@@ -217,12 +302,20 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWELL: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetWellsReturnedToCompliance(QueryParams options)
+        public IReadOnlyCollection<string> GetWellsReturnedToCompliance(QueryParams options)
         {
-            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID)) 
+            var query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                         FROM Violation_view 
                         INNER JOIN Well_view 
                             ON Violation_view.Well_FK = Well_view.GUID 
@@ -240,23 +333,31 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWELL: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetContaminationViolations(QueryParams options)
+        public IReadOnlyCollection<string> GetContaminationViolations(QueryParams options)
         {
             dynamic vars = new ExpandoObject();
             vars.wellClass = options.WellClass;
             vars.start = _startDate;
             vars.contamination = "Y";
 
-            var query = "SELECT COUNT(DISTINCT(Violation_view.OBJECTID)) " +
-                        "FROM Well_view " +
-                        "INNER JOIN Violation_view " +
-                        "ON Violation_view.Well_FK = Well_view.GUID " +
-                        "WHERE Well_view.WellClass = @wellClass " +
-                        "AND Violation_view.USDWContamination = @contamination " +
-                        "AND Violation_view.ViolationDate >= @start ";
+            var query = @"SELECT DISTINCT(Violation_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
+                        FROM Well_view 
+                        INNER JOIN Violation_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
+                        WHERE Well_view.WellClass = @wellClass 
+                            AND Violation_view.USDWContamination = @contamination 
+                            AND Violation_view.ViolationDate >= @start ";
 
             if (options.Snc)
             {
@@ -264,12 +365,88 @@ namespace uic_forms.services
                 vars.snc = "Y";
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICVIOLATION: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string SncViolations(QueryParams options)
+        public IReadOnlyCollection<string> CalculatePercentResolved(QueryParams options)
         {
-            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+            const string query = @"SELECT Violation_view.OBJECTID as esriid,
+                            Violation_view.ViolationDate,
+                            Violation_view.ReturnToComplianceDate
+                        FROM Violation_view 
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
+                        WHERE Well_view.WellClass = @wellClass
+                            AND Violation_view.ViolationType = 'MI'";
+
+            var violations = _connection.Query<QueryModel>(query, new
+            {
+                wellClass = options.WellClass
+            });
+
+            var a = 0M;
+            var b = 0M;
+
+            // WellClass code = '1'.   
+            // A = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI' AND 
+            // ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate  
+
+            // B = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI' 
+            // AND ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate 
+            // AND ReturnToComplianceDate is between (inclusive) ReportingFromDate and ReportingToDate 
+            // AND ReturnToComplianceDate - ViolationDate for ViolationType code = 'MI' is less than 90 days.   
+
+            // Percentage = 100 x (B/A)
+
+            foreach (var violation in violations)
+            {
+                var violationDate = violation.ViolationDate;
+
+
+                if (violationDate < _endDate &&
+                    violationDate >= _startDate - TimeSpan.FromDays(90))
+                {
+                    a += 1;
+                }
+
+                if (!violation.ReturnToComplianceDate.HasValue)
+                {
+                    continue;
+                }
+
+                var returnToComplianceDate = violation.ReturnToComplianceDate.Value;
+
+                if (violationDate < _endDate &&
+                    violationDate >= _startDate - TimeSpan.FromDays(90) &&
+                    returnToComplianceDate >= _startDate &&
+                    returnToComplianceDate <= _endDate &&
+                    (returnToComplianceDate - violationDate).Days < TimeSpan.FromDays(90).Days)
+                {
+                    b += 1;
+                }
+            }
+
+            if (a == 0 || b == 0)
+            {
+                return new [] {0.ToString()};
+            }
+
+            return new []{ $"{ Math.Round(b / a * 100, 2) }%"};
+        }
+
+        public IReadOnlyCollection<string> SncViolations(QueryParams options)
+        {
+            const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                                  FROM Well_view 
                                  INNER JOIN Violation_view 
                                     ON Violation_view.Well_FK = Well_view.GUID 
@@ -277,17 +454,62 @@ namespace uic_forms.services
                                     AND Violation_view.SignificantNonCompliance = @compliance 
                                     AND Violation_view.ViolationDate >= @start";
 
-            return _connection.QueryFirstOrDefault<int>(query, new
+            var result = _connection.Query<NarrativeMetadata>(query, new
             {
                 wellClass = options.WellClass,
                 start = _startDate,
                 compliance = "Y"
-            }).ToString();
+            });
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWELL: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetWellsInspected(QueryParams options)
+        public IReadOnlyCollection<string> GetWellOperatingStatus(QueryParams options)
         {
-            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+            const string query = @"SELECT Enforcement_view.EnforcementDate,
+                Violation_view.objectid as esriid, Well_view.facility_FK as FacilityId, UICWellOperatingStatus_evw.guid as ItemId
+            FROM 
+                Violation_view
+            INNER JOIN Well_view 
+                ON Well_view.GUID = Violation_view.Well_FK
+            INNER JOIN UICWellOperatingStatus_evw 
+                ON UICWellOperatingStatus_evw.Well_FK = Well_view.GUID
+            LEFT OUTER JOIN UICViolationToEnforcement_evw 
+                ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
+            LEFT OUTER JOIN Enforcement_view 
+                ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID
+            WHERE Well_view.WellClass = @wellClass
+                AND Violation_view.SignificantNonCompliance = @yes
+                AND Violation_view.Endanger = @yes
+                AND UICWellOperatingStatus_evw.OperatingStatusType = @operatingType
+                AND UICWellOperatingStatus_evw.OperatingStatusDate >= @start";
+
+            var result = _connection.Query<QueryModel>(query, new
+            {
+                yes = 'Y',
+                operatingType = "PA",
+                start = _startDate,
+                wellClass = options.WellClass
+            });
+
+            var response = new List<string>();
+            foreach (var metadata in result.Where(x => x.EnforcementDate.HasValue == options.HasEnforcement))
+            {
+                response.Add($"UICWELLOPERATINGSTATUS: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
+        }
+
+        public IReadOnlyCollection<string> GetWellsInspected(QueryParams options)
+        {
+            const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                                     FROM Well_view 
                                  INNER JOIN Inspection_view 
                                     ON Well_view.GUID = Inspection_view.Well_FK 
@@ -295,14 +517,22 @@ namespace uic_forms.services
                                     AND Inspection_view.InspectionDate >= @start
                                     AND Inspection_view.Facility_FK is NULL";
 
-            return _connection.QueryFirstOrDefault<int>(query, new
+            var result = _connection.Query<NarrativeMetadata>(query, new
             {
                 wellClass = options.WellClass,
                 start = _startDate
-            }).ToString();
+            });
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWELL: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetInspections(QueryParams options)
+        public IReadOnlyCollection<string> GetInspections(QueryParams options)
         {
             var types = options.InspectionType as string[] ?? options.InspectionType.ToArray();
 
@@ -310,7 +540,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT COUNT(DISTINCT(Inspection_view.OBJECTID)) 
+            var query = @"SELECT DISTINCT(Inspection_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Inspection_view 
                         INNER JOIN Well_view 
                             ON Well_view.GUID = Inspection_view.Well_FK 
@@ -328,10 +558,18 @@ namespace uic_forms.services
                 vars.inspectionType = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object) vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICINSPECTION: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetMechIntegrities(QueryParams options)
+        public IReadOnlyCollection<string> GetMechIntegrities(QueryParams options)
         {
             var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
             var results = options.MitResult as string[] ?? options.MitResult.ToArray();
@@ -340,7 +578,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+            var query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view
                         INNER JOIN Mit_view
                             ON Well_view.GUID = Mit_view.Well_FK 
@@ -369,10 +607,18 @@ namespace uic_forms.services
                 vars.mitResult = results;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object) vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWell: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetMechIntegrityWells(QueryParams options)
+        public IReadOnlyCollection<string> GetMechIntegrityWells(QueryParams options)
         {
             var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
             var results = options.MitResult as string[] ?? options.MitResult.ToArray();
@@ -381,7 +627,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT COUNT(DISTINCT(Mit_view.OBJECTID))
+            var query = @"SELECT DISTINCT(Mit_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view
                         INNER JOIN Mit_view
                             ON Well_view.GUID = Mit_view.Well_FK 
@@ -410,26 +656,42 @@ namespace uic_forms.services
                 vars.mitResult = results;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICMIT: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetRemedialWells(QueryParams options)
+        public IReadOnlyCollection<string> GetRemedialWells(QueryParams options)
         {
-            const string query = @"SELECT COUNT(DISTINCT(Well_view.OBJECTID))
+            const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view 
                         INNER JOIN Mit_view
                             ON Well_view.GUID = Mit_view.Well_FK 
                         WHERE Well_view.WellClass = @wellClass 
                             AND Mit_view.MITRemActDate >= @start ";
 
-            return _connection.QueryFirstOrDefault<int>(query, new
+            var result = _connection.Query<NarrativeMetadata>(query, new
             {
                 start = _startDate,
                 wellClass = options.WellClass
-            }).ToString();
+            });
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICWELL: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
-        public string GetRemedials(QueryParams options)
+        public IReadOnlyCollection<string> GetRemedials(QueryParams options)
         {
             var types = options.RemedialAction as string[] ?? options.RemedialAction.ToArray();
 
@@ -437,7 +699,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT COUNT(DISTINCT(Mit_view.OBJECTID))
+            var query = @"SELECT DISTINCT(Mit_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view 
                         INNER JOIN Mit_view
                             ON Well_view.GUID = Mit_view.Well_FK 
@@ -455,7 +717,15 @@ namespace uic_forms.services
                 vars.action = types;
             }
 
-            return _connection.QueryFirstOrDefault<int>(query, (object)vars).ToString();
+            var result = _connection.Query<NarrativeMetadata>(query, (object)vars);
+
+            var response = new List<string>();
+            foreach (var metadata in result)
+            {
+                response.Add($"UICMIT: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+            }
+
+            return response.AsReadOnly();
         }
 
         public IEnumerable<QueryModel> GetViolations()
@@ -653,154 +923,12 @@ WHERE
                     SetValueIfExists("OE_", true, ref fields);
                     break;
             }
-        }
+        } 
 
-        public string GetArtificialPenetrations(QueryParams options)
+        private struct NarrativeMetadata
         {
-            var types = options.WellType as int[] ?? options.WellType.ToArray();
-
-            dynamic vars = new ExpandoObject();
-            vars.start = _startDate;
-            vars.wellClass = options.WellClass;
-            vars.end = _endDate;
-
-            var query = @"SELECT 
-               COUNT(DISTINCT(Artificial_view.OBJECTID))
-               FROM 
-                   Artificial_view 
-               LEFT OUTER JOIN Well_view 
-                   ON Artificial_view.GUID = Well_view.AOR_FK 
-               WHERE 
-                  Well_view.wellClass = @wellClass ";
-
-            if (options.CaType > 0)
-            {
-                query += "AND Artificial_view.ArtPen_CAType = @catype ";
-                query += "AND Artificial_view.ArtPen_CADate BETWEEN @start AND @end ";
-                vars.catype = options.CaType;
-            }
-            else
-            {
-                query += "AND Artificial_view.ArtPen_ReviewDate BETWEEN @start AND @end ";
-            }
-
-            if (options.Ident4Ca)
-            {
-                query += "AND Artificial_view.Ident4CA = @yes ";
-                vars.yes = 1;
-            }
-
-            if (options.WellType.Count() == 1)
-            {
-                query += "AND Artificial_view.ArtPen_WellType = @wellType ";
-                vars.wellType = types[0];
-            }
-            else if (options.WellType.Count() > 1)
-            {
-                query += "AND Artificial_view.ArtPen_WellType in @wellType ";
-                vars.wellType = types;
-            }
-
-            return _connection.QueryFirstOrDefault<int>(query, (object) vars).ToString();
-        }
-
-        public string CalculatePercentResolved(QueryParams options)
-        {
-            const string query = @"SELECT Violation_view.OBJECTID as esriid,
-                            Violation_view.ViolationDate,
-                            Violation_view.ReturnToComplianceDate
-                        FROM Violation_view 
-                        INNER JOIN Well_view 
-                            ON Violation_view.Well_FK = Well_view.GUID 
-                        WHERE Well_view.WellClass = @wellClass
-                            AND Violation_view.ViolationType = 'MI'";
-
-            var violations = _connection.Query<QueryModel>(query, new
-            {
-                wellClass = options.WellClass
-            });
-
-            var a = 0M;
-            var b = 0M;
-
-            // WellClass code = '1'.   
-            // A = Number of Violations where in the UICViolation tbl, 
-            // ViolationType code = 'MI' AND 
-            // ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate  
-
-            // B = Number of Violations where in the UICViolation tbl, 
-            // ViolationType code = 'MI' 
-            // AND ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate 
-            // AND ReturnToComplianceDate is between (inclusive) ReportingFromDate and ReportingToDate 
-            // AND ReturnToComplianceDate - ViolationDate for ViolationType code = 'MI' is less than 90 days.   
-
-            // Percentage = 100 x (B/A)
-
-            foreach (var violation in violations)
-            {
-                var violationDate = violation.ViolationDate;
-
-
-                if (violationDate < _endDate && 
-                    violationDate >= _startDate - TimeSpan.FromDays(90))
-                {
-                    a += 1;
-                }
-
-                if (!violation.ReturnToComplianceDate.HasValue)
-                {
-                    continue;
-                }
-
-                var returnToComplianceDate = violation.ReturnToComplianceDate.Value;
-
-                if (violationDate < _endDate &&
-                    violationDate >= _startDate - TimeSpan.FromDays(90) &&
-                    returnToComplianceDate >= _startDate &&
-                    returnToComplianceDate <= _endDate &&
-                    (returnToComplianceDate - violationDate).Days < TimeSpan.FromDays(90).Days)
-                {
-                    b += 1;
-                }
-            }
-
-            if (a == 0 || b == 0)
-            {
-                return 0.ToString();
-            }
-
-            return $"{Math.Round(b / a * 100, 2)}%";
-        }
-
-        public string GetWellOperatingStatus(QueryParams options)
-        {
-            const string query = @"SELECT Enforcement_view.EnforcementDate,
-                Violation_view.objectid as esriid
-            FROM 
-                Violation_view
-            INNER JOIN Well_view 
-                ON Well_view.GUID = Violation_view.Well_FK
-            INNER JOIN UICWellOperatingStatus_evw 
-                ON UICWellOperatingStatus_evw.Well_FK = Well_view.GUID
-            LEFT OUTER JOIN UICViolationToEnforcement_evw 
-                ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
-            LEFT OUTER JOIN Enforcement_view 
-                ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID
-            WHERE Well_view.WellClass = @wellClass
-                AND Violation_view.SignificantNonCompliance = @yes
-                AND Violation_view.Endanger = @yes
-                AND UICWellOperatingStatus_evw.OperatingStatusType = @operatingType
-                AND UICWellOperatingStatus_evw.OperatingStatusDate >= @start";
-
-            var items = _connection.Query<QueryModel>(query, new
-            {
-                yes = 'Y',
-                operatingType = "PA",
-                start = _startDate,
-                wellClass = options.WellClass
-            });
-
-            return items.Count(x => x.EnforcementDate.HasValue == options.HasEnforcement).ToString();
+            public Guid ItemId { get; set; }
+            public Guid FacilityId { get; set; }
         }
     }
 }
