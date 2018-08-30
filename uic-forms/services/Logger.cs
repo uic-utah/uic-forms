@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Email;
@@ -21,7 +20,7 @@ namespace uic_forms.services
                 Port = 25
             };
 
-            var logPath = Path.Combine(path, "7520.{{Date}}.log.txt");
+            var logPath = Path.Combine(path, "7520-{Date}.log.txt");
             var logLevel = LogEventLevel.Information;
 
             if (verbose)
