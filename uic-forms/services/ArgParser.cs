@@ -60,7 +60,7 @@ namespace uic_forms.services
                     }
                     case "4th":
                     {
-                        options.EndDate = new DateTime(options.StartDate.Year + 1, 8, 30);
+                        options.EndDate = new DateTime(options.StartDate.Year + 1, 9, 30);
                         break;
                     }
                     default: 
