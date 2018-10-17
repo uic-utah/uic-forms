@@ -172,11 +172,11 @@ namespace uic_forms
                     EnableUpdates(document.AcroForm);
 
                     SetHeader(fields, options);
-//
+
                     var formInfo = new List<InputMonad>();
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellViolationCount, ref formInfo);
-//
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"UI"}
@@ -206,7 +206,7 @@ namespace uic_forms
                     {
                         ViolationTypes = new[] {"OT"}
                     }, sevenFiveTwenty.GetViolationCount, ref formInfo);
-//
+
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
 
@@ -267,15 +267,14 @@ namespace uic_forms
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "IX_{class}", new QueryParams(),
                                                        sevenFiveTwenty.CalculatePercentResolved, ref formInfo, true);
-//
-//
+
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
                     Logger.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
 
                     document.Save(formPaths.Item2);
                 }
-//
+
                 formPaths = GetFormLocations(options, "7520-2b");
                 Logger.AlwaysWrite("Loading template for the 7520-2b form...");
 
@@ -569,7 +568,7 @@ namespace uic_forms
                     {
                         RemedialAction = new[] {"OT"}
                     }, sevenFiveTwenty.GetRemedials, ref formInfo);
-//
+
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
                     Logger.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
