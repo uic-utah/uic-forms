@@ -2,7 +2,6 @@
 {
     public class Contact
     {
-    public string ContactPhone { get; set; }
         public string ContactName { get; set; }
         public string ContactMailCity { get; set; }
         public string ContactMailState { get; set; }
