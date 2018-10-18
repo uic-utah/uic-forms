@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.AcroForms;
-using PdfSharp.Pdf.IO;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 using uic_forms.models;
 using uic_forms.services;
 
@@ -27,7 +27,6 @@ namespace uic_forms
                 EndDate = new DateTime(2018, 3, 31),
                 StartDate = new DateTime(2017, 10, 1),
                 OutputPath = "c:\\temp",
-                TemplateLocation = "C:\\Projects\\GitHub\\uic-7520\\templates",
                 Source = "udeq.agrc.utah.gov\\mspd14",
                 Verbose = false,
                 Password = "stage-pw"
@@ -47,6 +46,7 @@ namespace uic_forms
             Logger = new Logger(options.Verbose, options.OutputPath);
             Logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
             var start = Stopwatch.StartNew();
+            var fields = new string[0];
 
             Logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
             Logger.AlwaysWrite("Reporting from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),
@@ -55,17 +55,17 @@ namespace uic_forms
             Logger.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options))
             {
-                var formPaths = GetFormLocations(options, "7520-1");
-                Logger.AlwaysWrite("Loading template for the 7520-1 form...");
-
-                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
+                using (var writer = new StreamWriter(File.Create($"{options.OutputPath}{DateTime.Now:MM-dd-yyy}.csv")))
+                using (var csv = new CsvWriter(writer, new Configuration
                 {
-                    var fields = document.AcroForm.Fields;
+                    Encoding = Encoding.UTF8,
+                    HasHeaderRecord = true
+                }))
+                {
+                    csv.WriteHeader<Forms1Through3>();
+                    csv.Flush();
 
-                    EnableUpdates(document.AcroForm);
-
-                    SetHeader(fields, options);
+                    return;
 
                     SetFieldText("VIA_1E", "NA", fields);
                     SetFieldText("VIB_1E", "NA", fields);
@@ -155,25 +155,6 @@ namespace uic_forms
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    // Output the path for manual verification of result
-                    Logger.AlwaysWrite("Saving 7520-1 form to {0}", formPaths.Item2);
-
-                    document.Save(formPaths.Item2);
-                }
-
-                formPaths = GetFormLocations(options, "7520-2a");
-                Logger.AlwaysWrite("Loading template for the 7520-2a form...");
-
-                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
-                {
-                    var fields = document.AcroForm.Fields;
-
-                    EnableUpdates(document.AcroForm);
-
-                    SetHeader(fields, options);
-
-                    var formInfo = new List<InputMonad>();
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellViolationCount, ref formInfo);
 
@@ -270,26 +251,9 @@ namespace uic_forms
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    Logger.AlwaysWrite("Saving 7520-2a form to {0}", formPaths.Item2);
-
-                    document.Save(formPaths.Item2);
-                }
-
-                formPaths = GetFormLocations(options, "7520-2b");
-                Logger.AlwaysWrite("Loading template for the 7520-2b form...");
-
-                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
-                {
-                    var fields = document.AcroForm.Fields;
-
-                    EnableUpdates(document.AcroForm);
-
-                    SetHeader(fields, options);
 
                     SetFieldText("VIB7_1", "NA", fields);
 
-                    var formInfo = new List<InputMonad>();
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.SncViolations, ref formInfo);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
@@ -391,23 +355,6 @@ namespace uic_forms
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    Logger.AlwaysWrite("Saving 7520-2b form to {0}", formPaths.Item2);
-
-                    document.Save(formPaths.Item2);
-                }
-
-                formPaths = GetFormLocations(options, "7520-3");
-                Logger.AlwaysWrite("Loading template for the 7520-3 form...");
-
-                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
-                {
-                    var fields = document.AcroForm.Fields;
-
-                    EnableUpdates(document.AcroForm);
-
-                    SetHeader(fields, options);
-
                     var na = new List<string>
                     {
                         "VIB_1",
@@ -443,8 +390,6 @@ namespace uic_forms
                     };
 
                     na.ForEach(field => { SetFieldText(field, "NA", fields); });
-
-                    var formInfo = new List<InputMonad>();
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
                                                        sevenFiveTwenty.GetWellsInspected, ref formInfo);
@@ -571,24 +516,19 @@ namespace uic_forms
 
                     formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
 
-                    Logger.AlwaysWrite("Saving 7520-3 form to {0}", formPaths.Item2);
-
-                    document.Save(formPaths.Item2);
-                }
-
-                formPaths = GetFormLocations(options, "7520-4");
-                Logger.AlwaysWrite("Loading template for the 7520-4 form...");
-
-                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
-                {
-                    var fields = document.AcroForm.Fields;
+//                formPaths = GetFormLocations(options, "7520-4");
+//                Logger.AlwaysWrite("Loading template for the 7520-4 form...");
+//
+//                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
+//                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
+//                {
+//                    var fields = document.AcroForm.Fields;
                     var include = new Collection<QueryModel>();
                     var formalActions = new[] {"CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT"};
-
-                    EnableUpdates(document.AcroForm);
-
-                    SetHeader(fields, options);
+//
+//                    EnableUpdates(document.AcroForm);
+//
+//                    SetHeader(fields, options);
 
                     var violations = sevenFiveTwenty.GetViolations();
 
@@ -768,15 +708,11 @@ namespace uic_forms
 
                         foreach (var item in checks)
                         {
-                            SetFieldCheck(row, item.Key, item.Value, fields);
+//                            SetFieldText(row, item.Key, item.Value, fields);
                         }
 
                         row += 1;
                     }
-
-                    Logger.AlwaysWrite("Saving 7520-4 form to {0}", formPaths.Item2);
-
-                    document.Save(formPaths.Item2);
                 }
             }
 
@@ -786,72 +722,9 @@ namespace uic_forms
             Console.ReadLine();
         }
 
-        private static void SetHeader(PdfAcroField.PdfAcroFieldCollection fields, CliOptions options)
+        private static void SetFieldText(string field, object value, dynamic fields)
         {
-            if (fields.Names.Contains("Preparer"))
-            {
-                SetFieldText("Preparer", "Candace C. Cady\r\nEnvironmental Scientist", fields);
-            }
-            if (fields.Names.Contains("Telephone"))
-            {
-                SetFieldText("Telephone", "801.536.4352", fields);
-            }
-            if (fields.Names.Contains("DatePrepared"))
-            {
-                SetFieldText("DatePrepared", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-            }
-            if (fields.Names.Contains("Date Signed"))
-            {
-                SetFieldText("Date Signed", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-            }
-            if (fields.Names.Contains("DateSigned"))
-            {
-                SetFieldText("DateSigned", DateTime.Today.ToString("MMM dd, yyyy"), fields);
-            }
-            SetFieldText("ReportingFromDate", options.StartDate.ToString("MMM dd, yyyy"), fields);
-            SetFieldText("ReportingToDate", options.EndDate.ToString("MMM dd, yyyy"), fields);
-        }
-
-        private static Tuple<string, string> GetFormLocations(CliOptions options, string formNumber)
-        {
-            var template = Path.Combine(options.TemplateLocation, $"{formNumber}.pdf");
-            var outputLocation = Path.Combine(options.OutputPath, $"{formNumber}_{DateTime.Now:MM-dd-yyyy}.pdf");
-
-            return new Tuple<string, string>(template, outputLocation);
-        }
-
-        private static void EnableUpdates(PdfDictionary form)
-        {
-            if (form.Elements.ContainsKey("/NeedAppearances"))
-            {
-                form.Elements["/NeedAppearances"] = new PdfBoolean(true);
-            }
-            else
-            {
-                form.Elements.Add("/NeedAppearances", new PdfBoolean(true));
-            }
-        }
-
-        private static void SetFieldText(string field, object value, PdfAcroField.PdfAcroFieldCollection fields)
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            try
-            {
-                ((PdfTextField) fields[field]).Value = new PdfString(value.ToString());
-            }
-            catch (Exception)
-            {
-                Logger.AlwaysWrite("Cound not find field {0}. Skipping", field);
-            }
-        }
-
-        private static void SetFieldCheck(int row, string field, bool value, PdfAcroField.PdfAcroFieldCollection fields)
-        {
-            ((PdfCheckBoxField) fields[field + row]).Checked = value;
+            
         }
     }
 }
