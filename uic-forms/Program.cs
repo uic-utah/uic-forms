@@ -5,9 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using CsvHelper;
-using CsvHelper.Configuration;
 using uic_forms.models;
 using uic_forms.services;
 
@@ -55,306 +53,311 @@ namespace uic_forms
             Logger.Write("Connecting to UDEQ...");
             using (var sevenFiveTwenty = new Querier(options))
             {
-                using (var writer = new StreamWriter(File.Create($"{options.OutputPath}{DateTime.Now:MM-dd-yyy}.csv")))
-                using (var csv = new CsvWriter(writer, new Configuration
+                var output = $"{options.OutputPath}\\{DateTime.Now:MM-dd-yyy}.csv";
+
+                using (var writer = new StreamWriter(File.Create(output)))
+                using (var csv = new CsvWriter(writer))
                 {
-                    Encoding = Encoding.UTF8,
-                    HasHeaderRecord = true
-                }))
-                {
+                    writer.AutoFlush = true;
+                    csv.Configuration.HasHeaderRecord = true;
+                    csv.Configuration.RegisterClassMap<Forms1Through3Mapping>();
+
                     csv.WriteHeader<Forms1Through3>();
-                    csv.Flush();
+                    csv.NextRecord();
 
-                    return;
+                    var form7520_1 = new Forms1Through3
+                    {
+                        ["VIA_1E"] = "NA",
+                        ["VIB_1E"] = "NA",
+                        ["VIC_1E"] = "NA"
+                    };
 
-                    SetFieldText("VIA_1E", "NA", fields);
-                    SetFieldText("VIB_1E", "NA", fields);
-                    SetFieldText("VIC_1E", "NA", fields);
+                    var datas = new List<InputMonad>();
 
-                    var formInfo = new List<InputMonad>();
+                    #region 7520-1
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "V_{class}",
                                                        new QueryParams
                                                        {
                                                            AuthActionTypes = new[] {"AI", "AM", "AR"}
-                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetPermitCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}N",
                                                        new QueryParams
                                                        {
                                                            AuthTypes = new[] {"IP"},
                                                            AuthActionTypes = new[] {"PI"}
-                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetPermitCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB_{class}N",
                                                        new QueryParams
                                                        {
                                                            AuthTypes = new[] {"AP"},
                                                            AuthActionTypes = new[] {"PI"}
-                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetPermitCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC_{class}N",
                                                        new QueryParams
                                                        {
                                                            AuthTypes = new[] {"AP"},
                                                            AuthActionTypes = new[] {"PI"}
-                                                       }, sevenFiveTwenty.GetWellPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetWellPermitCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID_{class}",
                                                        new QueryParams
                                                        {
                                                            AuthTypes = new[]
                                                                {"IP", "AP", "GP", "EP", "OP"},
                                                            AuthActionTypes = new[] {"PD", "MD", "TP"}
-                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetPermitCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIE_{class}",
                                                        new QueryParams
                                                        {
                                                            AuthTypes = new[] {"IP", "AP", "GP", "OP"},
                                                            AuthActionTypes = new[] {"PM"}
-                                                       }, sevenFiveTwenty.GetPermitCount, ref formInfo);
+                                                       }, sevenFiveTwenty.GetPermitCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}A",
                                                        new QueryParams
                                                        {
                                                            WellType = new[] {1}
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIA_{class}O",
                                                        new QueryParams
                                                        {
                                                            WellType = new[] {2, 3}
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}A",
                                                        new QueryParams
                                                        {
                                                            WellType = new[] {1},
                                                            Ident4Ca = true
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIB_{class}O",
                                                        new QueryParams
                                                        {
                                                            WellType = new[] {2, 3},
                                                            Ident4Ca = true
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC1_{class}",
                                                        new QueryParams
                                                        {
                                                            CaType = 1
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC2_{class}",
                                                        new QueryParams
                                                        {
                                                            CaType = 2
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC3_{class}",
                                                        new QueryParams
                                                        {
                                                            CaType = 3
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIIC4_{class}",
                                                        new QueryParams
                                                        {
                                                            CaType = 4
-                                                       }, sevenFiveTwenty.GetArtificialPenetrations, ref formInfo);
+                                                       }, sevenFiveTwenty.GetArtificialPenetrations, datas);
+                    #endregion
 
-
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
-
+                    #region 7520 -2a
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetWellViolationCount, ref formInfo);
+                                                       sevenFiveTwenty.GetWellViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"UI"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"MI", "MO"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"OM", "IP"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"PA"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"MR", "FO", "FA", "FI", "FR"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB6_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"OT"}
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                                                       sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB1_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"NOV"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB2_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CGT"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB3_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"DAO", "FAO"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB4_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CIR"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB5_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CRR"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB6_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"SHT"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB7_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"PSE"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB8_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"INF", "TOA", "OTR"}
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams
                                                        {
                                                            StartDate = options.EndDate - TimeSpan.FromDays(90)
                                                        },
-                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB_{class}", new QueryParams
                                                        {
                                                            StartDate = options.StartDate
                                                        },
-                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+                                                       sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIII_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetContaminationViolations, ref formInfo);
+                                                       sevenFiveTwenty.GetContaminationViolations, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "IX_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.CalculatePercentResolved, ref formInfo, true);
+                                                       sevenFiveTwenty.CalculatePercentResolved, datas, true);
+                    #endregion  
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
+                    #region 7520-2b
 
-
-                    SetFieldText("VIB7_1", "NA", fields);
+                    form7520_1["VIB7_1"] = "NA";
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.SncViolations, ref formInfo);
+                                                       sevenFiveTwenty.SncViolations, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"UI"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"MI", "MO"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"IP"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"PA"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"FO"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB6_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"FA"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB7_{class}", new QueryParams
                     {
                         ViolationTypes = new[] {"OT", "OM", "MR", "FI", "FR"},
                         Snc = true
-                    }, sevenFiveTwenty.GetViolationCount, ref formInfo);
+                    }, sevenFiveTwenty.GetViolationCount, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams
                     {
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB1_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"NOV"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB2_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CGT"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB3_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"DAO", "FAO"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB4_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CIR"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB5_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"CRR"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB6_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"SHT"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIB8_{class}", new QueryParams
                     {
                         EnforcementTypes = new[] {"INF", "TOA", "OTR"},
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsWithEnforcements, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams
                     {
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB_{class}", new QueryParams
                     {
                         StartDate = options.StartDate,
                         Snc = true
-                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, ref formInfo);
+                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIII_{class}", new QueryParams
                     {
                         Snc = true
-                    }, sevenFiveTwenty.GetContaminationViolations, ref formInfo);
+                    }, sevenFiveTwenty.GetContaminationViolations, datas);
 
                     InputMonadGenerator.CreateMonadFor(new[] {4, 5}, "IX_{class}", new QueryParams
                     {
                         HasEnforcement = true
-                    }, sevenFiveTwenty.GetWellOperatingStatus, ref formInfo);
+                    }, sevenFiveTwenty.GetWellOperatingStatus, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {4, 5}, "IXV_{class}", new QueryParams
                     {
                         HasEnforcement = false
-                    }, sevenFiveTwenty.GetWellOperatingStatus, ref formInfo);
+                    }, sevenFiveTwenty.GetWellOperatingStatus, datas);
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
+                    #endregion
 
+                    #region 7520-3  
                     var na = new List<string>
                     {
                         "VIB_1",
@@ -389,146 +392,138 @@ namespace uic_forms
                         "VIBf_5"
                     };
 
-                    na.ForEach(field => { SetFieldText(field, "NA", fields); });
+                    na.ForEach(field => { form7520_1[field] = "NA"; });
 
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetWellsInspected, ref formInfo);
+                                                       sevenFiveTwenty.GetWellsInspected, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB1_{class}", new QueryParams
                     {
                         InspectionType = new[] {"MI"}
-                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    }, sevenFiveTwenty.GetInspections, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB2_{class}", new QueryParams
                     {
                         InspectionType = new[] {"EC"}
-                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    }, sevenFiveTwenty.GetInspections, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB3_{class}", new QueryParams
                     {
                         InspectionType = new[] {"CO"}
-                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    }, sevenFiveTwenty.GetInspections, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB4_{class}", new QueryParams
                     {
                         InspectionType = new[] {"WP"}
-                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    }, sevenFiveTwenty.GetInspections, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VB5_{class}", new QueryParams
                     {
                         InspectionType = new[] {"RP", "OT", "NW", "FI"}
-                    }, sevenFiveTwenty.GetInspections, ref formInfo);
+                    }, sevenFiveTwenty.GetInspections, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetMechIntegrities, ref formInfo);
+                                                       sevenFiveTwenty.GetMechIntegrities, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC1p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"AP"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC1f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"AP"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC2p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CT"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC2f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CT"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC3p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"MR"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC3f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"MR"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC4p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIC4f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"WI", "WA", "AT", "SR", "OL"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID1p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CR"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID1f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CR"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID2p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"TN"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID2f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"TN"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID3p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"RC"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID3f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"RC"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID4p_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
                         MitResult = new[] {"PS"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VID4f_{class}", new QueryParams
                     {
                         MitTypes = new[] {"CB", "OA", "RS", "DC", "OF"},
                         MitResult = new[] {"FU", "FP", "FA"}
-                    }, sevenFiveTwenty.GetMechIntegrityWells, ref formInfo);
+                    }, sevenFiveTwenty.GetMechIntegrityWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIA_{class}", new QueryParams(),
-                                                       sevenFiveTwenty.GetRemedialWells, ref formInfo);
+                                                       sevenFiveTwenty.GetRemedialWells, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB1_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"CS"}
-                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB2_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"TR", "PR"}
-                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB3_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"PA"}
-                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, datas);
                     InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "VIIB4_{class}", new QueryParams
                     {
                         RemedialAction = new[] {"OT"}
-                    }, sevenFiveTwenty.GetRemedials, ref formInfo);
+                    }, sevenFiveTwenty.GetRemedials, datas);
 
-                    formInfo.ForEach(x => { SetFieldText(x.Id, x.Query(), fields); });
+                    #endregion
 
-//                formPaths = GetFormLocations(options, "7520-4");
-//                Logger.AlwaysWrite("Loading template for the 7520-4 form...");
-//
-//                using (var file = new FileStream(formPaths.Item1, FileMode.Open, FileAccess.Read))
-//                using (var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify))
-//                {
-//                    var fields = document.AcroForm.Fields;
+                    datas.ForEach(x => { form7520_1[x.Id] = x.Query(); });
+
+                    #region 7520-4
                     var include = new Collection<QueryModel>();
                     var formalActions = new[] {"CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT"};
-//
-//                    EnableUpdates(document.AcroForm);
-//
-//                    SetHeader(fields, options);
 
                     var violations = sevenFiveTwenty.GetViolations();
 
@@ -675,15 +670,14 @@ namespace uic_forms
                         var value = sevenFiveTwenty.GetWellSubClass(violation.WellId);
                         var contact = sevenFiveTwenty.GetContactAddress(violation.WellId);
 
-                        SetFieldText("WCT_" + row, value, fields);
-                        SetFieldText("NAO_" + row, contact?.Address(), fields);
+                        form7520_1["WCT_" + row] = value;
+                        form7520_1["NAO_" + row] = contact?.Address();
 
-                        SetFieldText("WID_" + row, sevenFiveTwenty.GetWellId(violation.WellId), fields);
-                        SetFieldText("DOV_" + row, violation.ViolationDate.ToString("MMM dd, yyyy"), fields);
+                        form7520_1["WID_" + row] = sevenFiveTwenty.GetWellId(violation.WellId);
+                        form7520_1["DOV_" + row] = violation.ViolationDate.ToString("MMM dd, yyyy");
                         if (violation.EnforcementDate.HasValue && violation.EnforcementDate.Value <= options.EndDate)
                         {
-                            SetFieldText("DOE_" + row, violation.EnforcementDate.Value.ToString("MMM dd, yyyy"),
-                                         fields);
+                            form7520_1["DOE_" + row] = violation.EnforcementDate.Value.ToString("MMM dd, yyyy");
                             checkboxFields.AddRange(new [] {
                                 "NOV_",
                                 "CA_",
@@ -699,20 +693,21 @@ namespace uic_forms
                         if (violation.ReturnToComplianceDate.HasValue &&
                             violation.ReturnToComplianceDate.Value <= options.EndDate)
                         {
-                            SetFieldText("DOC_" + row, violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy"),
-                                         fields);
+                            form7520_1["DOC_" + row] = violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy");
                         }
 
                         var checks = checkboxFields.ToDictionary(key => key, v => false);
-                        sevenFiveTwenty.GetViolationCheckmarks(violation.Id, violation.EnforcementType, ref checks);
+                        sevenFiveTwenty.GetViolationCheckmarks(violation.Id, violation.EnforcementType, checks);
 
                         foreach (var item in checks)
                         {
-//                            SetFieldText(row, item.Key, item.Value, fields);
+//                            form[item.Key] = item.Value, fields);
                         }
 
                         row += 1;
                     }
+
+                    #endregion
                 }
             }
 
@@ -720,11 +715,6 @@ namespace uic_forms
                                 options.EndDate.ToShortDateString(), (options.EndDate - options.StartDate).Days);
             Logger.AlwaysWrite("Finished: {0}", start.Elapsed);
             Console.ReadLine();
-        }
-
-        private static void SetFieldText(string field, object value, dynamic fields)
-        {
-            
         }
     }
 }

@@ -855,7 +855,7 @@ WHERE
         }
 
         public void GetViolationCheckmarks(Guid violationId, string enforcementType,
-                                           ref Dictionary<string, bool> fields)
+                                           Dictionary<string, bool> fields)
         {
             var type = _connection.QueryFirstOrDefault<string>("SELECT ViolationType " +
                                                                "FROM Violation_view " +
@@ -864,7 +864,7 @@ WHERE
                 violationId
             });
 
-            void SetValueIfExists(string field, bool value, ref Dictionary<string, bool> dict)
+            void SetValueIfExists(string field, bool value, Dictionary<string, bool> dict)
             {
                 if (dict.ContainsKey(field))
                 {
@@ -875,52 +875,52 @@ WHERE
             switch (type)
             {
                 case "UI":
-                    SetValueIfExists("UI_", true, ref fields);
+                    SetValueIfExists("UI_", true, fields);
                     break;
                 case "MI":
                 case "MO":
-                    SetValueIfExists("MI_", true, ref fields);
+                    SetValueIfExists("MI_", true, fields);
                     break;
                 case "IP":
-                    SetValueIfExists("IP_", true, ref fields);
+                    SetValueIfExists("IP_", true, fields);
                     break;
                 case "PA":
-                    SetValueIfExists("PA_", true, ref fields);
+                    SetValueIfExists("PA_", true, fields);
                     break;
                 case "FO":
-                    SetValueIfExists("FO_", true, ref fields);
+                    SetValueIfExists("FO_", true, fields);
                     break;
                 case "FA":
-                    SetValueIfExists("F_", true, ref fields);
+                    SetValueIfExists("F_", true, fields);
                     break;
                 case "OT":
-                    SetValueIfExists("OV_", true, ref fields);
+                    SetValueIfExists("OV_", true, fields);
                     break;
             }
 
             switch (enforcementType)
             {
                 case "NOV":
-                    SetValueIfExists("NOV_", true, ref fields);
+                    SetValueIfExists("NOV_", true, fields);
                     break;
                 case "CGT":
-                    SetValueIfExists("CA_", true, ref fields);
+                    SetValueIfExists("CA_", true, fields);
                     break;
                 case "DAO":
                 case "FAO":
-                    SetValueIfExists("AO_", true, ref fields);
+                    SetValueIfExists("AO_", true, fields);
                     break;
                 case "CIR":
-                    SetValueIfExists("CivR_", true, ref fields);
+                    SetValueIfExists("CivR_", true, fields);
                     break;
                 case "CRR":
-                    SetValueIfExists("CrimR_", true, ref fields);
+                    SetValueIfExists("CrimR_", true, fields);
                     break;
                 case "SHT":
-                    SetValueIfExists("WSI_", true, ref fields);
+                    SetValueIfExists("WSI_", true, fields);
                     break;
                 default:
-                    SetValueIfExists("OE_", true, ref fields);
+                    SetValueIfExists("OE_", true, fields);
                     break;
             }
         } 

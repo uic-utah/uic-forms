@@ -20,8 +20,11 @@ namespace uic_forms.models
             if (Id.Contains("{class}"))
             {
                 Id = id.Replace("{class}", _params.WellClass.ToString());
+                WellClass = _params.WellClass;
             }
         }
+
+        public int WellClass { get; set; }
 
         public string Id { get; }
 
@@ -57,7 +60,7 @@ namespace uic_forms.models
     {
         internal static void CreateMonadFor(IList<int> wellClasses, string id, QueryParams options,
                                             Func<QueryParams, IReadOnlyCollection<string>> query,
-                                            ref List<InputMonad> list, bool returnFirstValue = false)
+                                            List<InputMonad> list, bool returnFirstValue = false)
         {
             if (!wellClasses.Any())
             {
