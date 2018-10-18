@@ -68,23 +68,7 @@ namespace uic_forms.services
                 }
             });
 
-            Inquirer.Prompt(Question.Input("What is the file path to the templates for the 7520 forms")
-                                    .WithDefaultValue(@"C:\Projects\GitHub\uic-7520\templates")
-                                    .WithValidation(path =>
-                                    {
-                                        if (new DirectoryInfo(path).Exists)
-                                        {
-                                            return true;
-                                        }
-
-                                        var cwd = Directory.GetCurrentDirectory();
-                                        var location = Path.Combine(cwd, path.TrimStart('\\'));
-
-                                        return new DirectoryInfo(location).Exists;
-                                    }, "The location for the pdf files could not be found. Try again."))
-                    .Bind(() => options.TemplateLocation);
-
-            Inquirer.Prompt(Question.Input("Where would you like the forms saved")
+            Inquirer.Prompt(Question.Input("Where would you like the csv saved")
                                     .WithDefaultValue(@"C:\temp"))
                     .Then(path =>
                     {
