@@ -16,17 +16,14 @@ namespace uic_forms.models
             _params = @params;
             _query = query;
             _returnFirstValue = returnFirstValue;
-
-            if (Id.Contains("{class}"))
-            {
-                Id = id.Replace("{class}", _params.WellClass.ToString());
-                WellClass = _params.WellClass;
-            }
+            WellClass = _params.WellClass;
         }
 
         public int WellClass { get; set; }
 
         public string Id { get; }
+
+        public string Result { get; private set; }
 
         public string Query()
         {
@@ -39,7 +36,9 @@ namespace uic_forms.models
             }
             else
             {
-                return "0";
+                Result = "0";
+               
+                return Result;
             }
 
             foreach (var item in result)
@@ -49,10 +48,14 @@ namespace uic_forms.models
 
             if (_returnFirstValue)
             {
-                return result.FirstOrDefault();
+                Result = result.FirstOrDefault();
+
+                return Result;
             }
 
-            return count.ToString();
+            Result = count.ToString();
+
+            return Result;
         }
     }
 
