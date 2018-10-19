@@ -39,26 +39,26 @@ namespace uic_forms.services
                     .Then(year => options.StartDate = new DateTime(year, 10, 1));
 
             Inquirer.Prompt(Question.List("Which federal fiscal year quarter would you like to report",
-                                          new[] { "1st", "2nd", "3rd", "4th" })).Then(quarter =>
+                                          new[] { "1Q", "2Q", "3Q", "4Q" })).Then(quarter =>
             {
                 switch (quarter)
                 {
-                    case "1st":
+                    case "1Q":
                     {
                         options.EndDate = new DateTime(options.StartDate.Year, 12, 31);
                         break;
                     }
-                    case "2nd":
+                    case "2Q":
                     {
                         options.EndDate = new DateTime(options.StartDate.Year + 1, 3, 31);
                         break;
                     }
-                    case "3rd":
+                    case "3Q":
                     {
                         options.EndDate = new DateTime(options.StartDate.Year + 1, 6, 30);
                         break;
                     }
-                    case "4th":
+                    case "4Q":
                     {
                         options.EndDate = new DateTime(options.StartDate.Year + 1, 9, 30);
                         break;
@@ -66,6 +66,8 @@ namespace uic_forms.services
                     default: 
                         throw new Exception("how did I get here?");
                 }
+
+                options.Quarter = quarter;
             });
 
             Inquirer.Prompt(Question.Input("Where would you like the csv saved")
