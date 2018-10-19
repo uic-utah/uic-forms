@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Security.AccessControl;
 using CsvHelper.Configuration;
 using uic_forms.services;
 
@@ -130,7 +129,6 @@ namespace uic_forms.models
             Map(x => x.OperatorCity).Name("OperatorCity").NameIndex(9);
             Map(x => x.OperatorState).Name("OperatorState").NameIndex(10);
             Map(x => x.OperatorZIP).Name("OperatorZIP").NameIndex(11);
-                   
             Map(x => x.WID).Name("WellNumber").NameIndex(12);
             Map(x => x.DOV).Name("ViolationDate").NameIndex(13);
             Map(x => x.UI).Name("UAViolations_QEL").NameIndex(14);
@@ -155,7 +153,8 @@ namespace uic_forms.models
         }
     }
 
-    internal class Forms1Through3 : Form {
+    internal class Forms1Through3 : Form
+    {
         private readonly Logger _logger;
 
         public Forms1Through3(IReadOnlyList<InputMonad> datas, Logger logger)

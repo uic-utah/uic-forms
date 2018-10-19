@@ -10,7 +10,8 @@ namespace uic_forms.models
         private readonly Func<QueryParams, IReadOnlyCollection<string>> _query;
         private readonly bool _returnFirstValue;
 
-        internal InputMonad(string id, QueryParams @params, Func<QueryParams, IReadOnlyCollection<string>> query, bool returnFirstValue)
+        internal InputMonad(string id, QueryParams @params, Func<QueryParams, IReadOnlyCollection<string>> query,
+                            bool returnFirstValue)
         {
             Id = id;
             _params = @params;
@@ -37,7 +38,7 @@ namespace uic_forms.models
             else
             {
                 Result = "0";
-               
+
                 return Result;
             }
 

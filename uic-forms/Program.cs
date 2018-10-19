@@ -515,6 +515,7 @@ namespace uic_forms
 
                     csv.WriteRecords(new[] {class1, class3, class4, class5});
                 }
+
                 output = $"{options.OutputPath}\\7520-4.{DateTime.Now:MM-dd-yyy}.csv";
                 using (var writer = new StreamWriter(File.Create(output)))
                 using (var csv = new CsvWriter(writer))
@@ -527,15 +528,16 @@ namespace uic_forms
                     csv.NextRecord();
 
                     #region 7520-4
-                    var include = new Collection<QueryModel>(); 
+
+                    var include = new Collection<QueryModel>();
                     var formalActions = new[] {"CIR", "CGT", "CRR", "DAO", "FAO", "NOV", "PSE", "TAO", "SHT"};
 
                     var violations = sevenFiveTwenty.GetViolations();
-                    
+
                     foreach (var violation in violations)
                     {
                         Logger.Write("violation {1} date {0}", violation.ViolationDate.ToShortDateString(),
-                                      violation.EsriId);
+                                     violation.EsriId);
                         int days;
                         if (violation.ReturnToComplianceDate.HasValue &&
                             violation.ReturnToComplianceDate.Value < options.EndDate)
@@ -544,7 +546,7 @@ namespace uic_forms
                             Logger.Write("  ReturnToComplianceDate - Yes");
                             days = (violation.ReturnToComplianceDate.Value - violation.ViolationDate).Days;
                             Logger.Write("  return to compliance date of {0}",
-                                          violation.ReturnToComplianceDate.Value.ToShortDateString());
+                                         violation.ReturnToComplianceDate.Value.ToShortDateString());
                             Logger.Write("  {0} days of violation", days);
 
                             if (days < 180)
@@ -649,6 +651,7 @@ namespace uic_forms
                             }
                         }
                     }
+
                     #endregion
 
                     foreach (var violation in include)
@@ -684,7 +687,8 @@ namespace uic_forms
                         if (violation.EnforcementDate.HasValue && violation.EnforcementDate.Value <= options.EndDate)
                         {
                             form["DOE"] = violation.EnforcementDate.Value.ToString("MMM dd, yyyy");
-                            checkboxFields.AddRange(new [] {
+                            checkboxFields.AddRange(new[]
+                            {
                                 "NOV",
                                 "CA",
                                 "AO",
@@ -710,7 +714,7 @@ namespace uic_forms
                             form[item.Key] = item.Value ? "X" : null;
                         }
 
-                        csv.WriteRecords(new[] { form });
+                        csv.WriteRecords(new[] {form});
                     }
                 }
             }
