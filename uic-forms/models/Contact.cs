@@ -10,18 +10,16 @@
         public string ZipCode4 { get; set; }
         public int ContactType { get; set; }
 
-        public string Address()
+        public string Zip()
         {
-            var address = $"{ContactName} " +
-                          $"{ContactMailAddress} " +
-                          $"{ContactMailCity}, {ContactMailState} {ZipCode5}";
+            var zip = $"{ZipCode5}";
 
             if (!string.IsNullOrEmpty(ZipCode4))
             {
-                address += $"-{ZipCode4}";
+                zip += $"-{ZipCode4}";
             }
 
-            return address;
+            return zip;
         }
   }
 }
