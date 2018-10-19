@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using Dapper;
-using Serilog;
 using uic_forms.models;
 
 namespace uic_forms.services
@@ -875,52 +874,52 @@ WHERE
             switch (type)
             {
                 case "UI":
-                    SetValueIfExists("UI_", true, fields);
+                    SetValueIfExists("UI", true, fields);
                     break;
                 case "MI":
                 case "MO":
-                    SetValueIfExists("MI_", true, fields);
+                    SetValueIfExists("MI", true, fields);
                     break;
                 case "IP":
-                    SetValueIfExists("IP_", true, fields);
+                    SetValueIfExists("IP", true, fields);
                     break;
                 case "PA":
-                    SetValueIfExists("PA_", true, fields);
+                    SetValueIfExists("PA", true, fields);
                     break;
                 case "FO":
-                    SetValueIfExists("FO_", true, fields);
+                    SetValueIfExists("FO", true, fields);
                     break;
                 case "FA":
-                    SetValueIfExists("F_", true, fields);
+                    SetValueIfExists("F", true, fields);
                     break;
                 case "OT":
-                    SetValueIfExists("OV_", true, fields);
+                    SetValueIfExists("OV", true, fields);
                     break;
             }
 
             switch (enforcementType)
             {
                 case "NOV":
-                    SetValueIfExists("NOV_", true, fields);
+                    SetValueIfExists("NOV", true, fields);
                     break;
                 case "CGT":
-                    SetValueIfExists("CA_", true, fields);
+                    SetValueIfExists("CA", true, fields);
                     break;
                 case "DAO":
                 case "FAO":
-                    SetValueIfExists("AO_", true, fields);
+                    SetValueIfExists("AO", true, fields);
                     break;
                 case "CIR":
-                    SetValueIfExists("CivR_", true, fields);
+                    SetValueIfExists("CivR", true, fields);
                     break;
                 case "CRR":
-                    SetValueIfExists("CrimR_", true, fields);
+                    SetValueIfExists("CrimR", true, fields);
                     break;
                 case "SHT":
-                    SetValueIfExists("WSI_", true, fields);
+                    SetValueIfExists("WSI", true, fields);
                     break;
                 default:
-                    SetValueIfExists("OE_", true, fields);
+                    SetValueIfExists("OE", true, fields);
                     break;
             }
         } 
