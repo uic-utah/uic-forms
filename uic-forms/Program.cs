@@ -27,7 +27,7 @@ namespace uic_forms
                 StartDate = new DateTime(2017, 10, 1),
                 OutputPath = "c:\\temp",
                 Source = "udeq.agrc.utah.gov\\mspd14",
-                Verbose = false,
+                Verbose = true,
                 Password = "stage-pw"
             };
 #endif
@@ -717,6 +717,26 @@ namespace uic_forms
                         csv.WriteRecords(new[] {form});
                     }
                 }
+
+                #region summary form
+                output = $"{options.OutputPath}\\7520-Inventory.{DateTime.Now:MM-dd-yyy}.csv";
+                using (var writer = new StreamWriter(File.Create(output)))
+                using (var csv = new CsvWriter(writer))
+                {
+                    writer.AutoFlush = true;
+                    csv.Configuration.HasHeaderRecord = true;
+                    csv.Configuration.RegisterClassMap<FormInventoryMapping>();
+
+                    csv.WriteHeader<FormInventory>();
+                    csv.NextRecord();
+
+                    var summary = sevenFiveTwenty.GetInventory();
+
+                    csv.WriteRecord(summary);
+                }
+
+                #endregion
+
             }
 
             Logger.AlwaysWrite("Reported from {0} - {1} ({2} days)", options.StartDate.ToShortDateString(),

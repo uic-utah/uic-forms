@@ -77,8 +77,12 @@
   <ItemGroup>
     <Compile Include="models\CliOptions.cs" />
     <Compile Include="models\Contact.cs" />
-    <Compile Include="models\CsvModel.cs" />
+    <Compile Include="models\CsvMappings.cs" />
     <Compile Include="models\DomainModel.cs" />
+    <Compile Include="models\Form.cs" />
+    <Compile Include="models\Form4.cs" />
+    <Compile Include="models\FormInventory.cs" />
+    <Compile Include="models\Forms1Through3.cs" />
     <Compile Include="models\InputMonad.cs" />
     <Compile Include="models\QueryParams.cs" />
     <Compile Include="models\QueryModel.cs" />
