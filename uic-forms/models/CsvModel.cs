@@ -155,8 +155,6 @@ namespace uic_forms.models
 
     internal class Forms1Through3 : Form
     {
-        private readonly Logger _logger;
-
         public Forms1Through3(IReadOnlyList<InputMonad> datas, Logger logger)
         {
             _logger = logger;
