@@ -730,7 +730,7 @@ namespace uic_forms
                     csv.WriteHeader<FormInventory>();
                     csv.NextRecord();
 
-                    var summary = sevenFiveTwenty.GetInventory();
+                    var summary = sevenFiveTwenty.GetInventory(options.EndDate.Year.ToString());
 
                     csv.WriteRecord(summary);
                 }
