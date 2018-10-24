@@ -924,54 +924,105 @@ WHERE
             }
         }
 
-        public FormInventory GetInventory()
+        public FormInventory GetInventory(string fiscalYear)
         {
             var inventory = new FormInventory
             {
-                ClassIh = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.GUID))
-	FROM Well_view 
-INNER JOIN UICWellOperatingStatus_evw
-	ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
+                FedFiscalYr = fiscalYear,
+                ClassIh = _connection.QueryFirstOrDefault<string>(@"SELECT 
+    COUNT(
+        DISTINCT(Well_view.GUID)
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
 WHERE 
-	Well_view.WellSubClass = 1001
-AND
-	UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')"),
-                ClassIOther = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.GUID))
-	FROM Well_view 
-INNER JOIN UICWellOperatingStatus_evw
-	ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
+    Well_view.WellSubClass = 1001 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
+    AND Well_view.GUID NOT IN (
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
+            UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
+    )"),
+                ClassIOther = _connection.QueryFirstOrDefault<string>(@"SELECT 
+    COUNT(
+        DISTINCT(Well_view.GUID)
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
 WHERE 
-	Well_view.WellSubClass in (1000, 1002, 1003, 1999)
-AND
-	UICWELLOperatingStatus_evw.OperatingStatusType not in ('PA', 'AN')"),
-                ClassIiiWells = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.GUID))
-	FROM Well_view 
-INNER JOIN UICWellOperatingStatus_evw
-	ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
+    Well_view.WellSubClass in (1000, 1002, 1003, 1999) 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
+    AND Well_view.GUID NOT IN (
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
+            UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
+    )"),
+                ClassIiiWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
+    COUNT(
+        DISTINCT(Well_view.GUID)
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
 WHERE 
-	Well_view.WellClass = 3
-AND
-	UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')"),
+    Well_view.WellClass = 3 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
+    AND Well_view.GUID NOT IN (
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
+            UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
+    )"),
                 ClassIiiSites = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.facility_FK))
 	FROM Well_view
 WHERE
 	Well_view.WellClass = 3"),
-                ClassIvWells = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.GUID))
-FROM Well_view
-INNER JOIN UICWellOperatingStatus_evw ON
-	UICWellOperatingStatus_evw.Well_FK = Well_view.Guid
-WHERE
-	WellClass = 4
-AND
-	UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')"),
-                ClassVWells = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.GUID))
-FROM Well_view
-INNER JOIN UICWellOperatingStatus_evw ON
-	UICWellOperatingStatus_evw.Well_FK = Well_view.Guid
-WHERE
-	WellClass = 5
-AND
-	UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')")
+                ClassIvWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
+    COUNT(
+        DISTINCT(Well_view.GUID)
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid 
+WHERE 
+    WellClass = 4 
+    AND Well_view.GUID NOT IN (
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
+            UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
+    ) 
+    AND UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'PR', 'UC', 'AC', 'TA')"),
+                ClassVWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
+    COUNT(
+        DISTINCT(Well_view.GUID)
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid 
+WHERE 
+    WellClass = 5 
+    AND UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'PR', 'UC', 'AC', 'TA') 
+    AND Well_view.GUID NOT IN (
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
+            UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
+    )")
             };
 
             return inventory;
