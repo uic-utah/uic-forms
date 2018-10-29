@@ -47,7 +47,7 @@ namespace uic_forms.models
             Map(x => x.Vib4).Name("CivilReferral_EA").NameIndex(38);
             Map(x => x.Vib5).Name("CrimReferral_EA").NameIndex(39);
             Map(x => x.Vib6).Name("ShutIn_EA").NameIndex(40);
-            Map(x => x.Vib7).Constant("0").NameIndex(41);
+            Map(x => x.Vib7).Name("PipeSev_EA").Constant("0").NameIndex(41);
             Map(x => x.Vib8).Name("Other_EA").NameIndex(42);
             Map(x => x.Other_EA_Spec).Constant(null).NameIndex(43);
             Map(x => x.Viia).Name("WellRTC").NameIndex(44);
