@@ -683,10 +683,10 @@ namespace uic_forms
                         form.OperatorZIP = contact?.Zip();
 
                         form["WID"] = sevenFiveTwenty.GetWellId(violation.WellId);
-                        form["DOV"] = violation.ViolationDate.ToString("MMM dd, yyyy");
+                        form["DOV"] = violation.ViolationDate.ToString("MM/dd/yyyy");
                         if (violation.EnforcementDate.HasValue && violation.EnforcementDate.Value <= options.EndDate)
                         {
-                            form["DOE"] = violation.EnforcementDate.Value.ToString("MMM dd, yyyy");
+                            form["DOE"] = violation.EnforcementDate.Value.ToString("MM/dd/yyyy");
                             checkboxFields.AddRange(new[]
                             {
                                 "NOV",
@@ -703,7 +703,7 @@ namespace uic_forms
                         if (violation.ReturnToComplianceDate.HasValue &&
                             violation.ReturnToComplianceDate.Value <= options.EndDate)
                         {
-                            form["DOC"] = violation.ReturnToComplianceDate.Value.ToString("MMM dd, yyyy");
+                            form["DOC"] = violation.ReturnToComplianceDate.Value.ToString("MM/dd/yyyy");
                         }
 
                         var checks = checkboxFields.ToDictionary(key => key, v => false);
