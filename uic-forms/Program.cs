@@ -326,10 +326,10 @@ namespace uic_forms
 //                        StartDate = options.StartDate,
 //                        Snc = true
 //                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
-//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viii_2b", new QueryParams
-//                    {
-//                        Snc = true
-//                    }, sevenFiveTwenty.GetContaminationViolations, datas);
+                InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viii_2b", new QueryParams
+                {
+                    Snc = true
+                }, sevenFiveTwenty.GetContaminationViolations, datas);
 
                 InputMonadGenerator.CreateMonadFor(new[] {4, 5}, "Ix_2b", new QueryParams
                 {
