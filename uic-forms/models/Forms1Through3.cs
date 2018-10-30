@@ -114,6 +114,5 @@ namespace uic_forms.models
         public string Viib3_3b { get; set; }
         public string Viib4_3b { get; set; }
         public string Remark75203 { get; set; }
-        public string PermitMod { get; set; }
     }
 }
