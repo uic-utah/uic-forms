@@ -14,7 +14,6 @@ namespace uic_forms.services
         private readonly SqlConnection _connection;
         private readonly DateTime _endDate;
         private readonly DateTime _startDate;
-        private readonly IEnumerable<DomainModel> _subClassLookup;
         private readonly Dictionary<dynamic, dynamic> _facilityLookup;
 
         internal Querier(CliOptions options)
@@ -27,7 +26,6 @@ namespace uic_forms.services
                                             $"User ID={ConfigurationManager.AppSettings["username"]};" +
                                             $"Password={ConfigurationManager.AppSettings[options.Password]}");
 
-            _subClassLookup = GetDomainValuesFor("UICWellSubClassDomain");
             _facilityLookup = _connection.Query("SELECT Guid, FacilityName from UICFacility_evw")
                                          .ToDictionary(x => x.Guid, y => y.FacilityName);
         }
@@ -755,16 +753,50 @@ namespace uic_forms.services
 
         public string GetWellSubClass(Guid wellid)
         {
-            const string query = "SELECT WellSubClass " +
+//           Class 1 wells only:
+//              WellSubClass coded values of '1001' '1003' should be reported as '1H';
+//              '1000' as '1I';
+//              '1002' as '1M'
+//              Coded value of '1999' is a catch all code
+//
+//           Class 3, 4, and 5 wells should be reported only with their WellClass
+            const string query = "SELECT WellClass, WellSubClass " +
                                  "FROM Well_view " +
                                  "WHERE GUID = @wellId";
 
-            var code = _connection.QueryFirstOrDefault<string>(query, new
+            var codes = _connection.QueryFirstOrDefault(query, new
             {
                 wellid
             });
 
-            return _subClassLookup.Single(x => x.Code == code).Value;
+            var wellClass = codes.WellClass;
+            var subClass = codes.WellSubClass;
+
+            if (wellClass != 1)
+            {
+                return wellClass.ToString();
+            }
+
+            switch (subClass)
+            {
+                case 1000:
+                {
+                    return "1I";
+                }
+                case 1002:
+                {
+                    return "1M";
+                }
+                case 1001:
+                case 1003:
+                {
+                    return "1H";
+                }
+                default:
+                {
+                    return "";
+                }
+            }
         }
 
         public Contact GetContactAddress(Guid wellId)
