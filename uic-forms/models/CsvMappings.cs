@@ -75,7 +75,7 @@ namespace uic_forms.models
             Map(x => x.PipeSev_SNC).Constant("0").NameIndex(++i);
             Map(x => x.Vib8_2b).Name("Other_SNC_EA").NameIndex(++i);
             Map(x => x.Other_SNC_EA_Spec).Constant(null).NameIndex(++i);
-            Map(x => x.Viia_2b).Name("WellRTC_SNC").NameIndex(++i);
+            Map(x => x.Viib_2b).Name("WellRTC_SNC").NameIndex(++i);
             Map(x => x.Viii_2b).Name("Contamination_SNC").NameIndex(++i);
             Map(x => x.Ix_2b).Name("InvoluntaryClosure").NameIndex(++i);
             Map(x => x.Ixv_2b).Name("VoluntaryClosure").NameIndex(++i);

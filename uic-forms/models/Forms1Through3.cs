@@ -79,7 +79,7 @@ namespace uic_forms.models
         public string PipeSev_SNC { get; set; }
         public string Vib8_2b { get; set; }
         public string Other_SNC_EA_Spec { get; set; }
-        public string Viia_2b { get; set; }
+        public string Viib_2b { get; set; }
         public string Viii_2b { get; set; }
         public string Ix_2b { get; set; }
         public string Ixv_2b { get; set; }

@@ -317,15 +317,15 @@ namespace uic_forms
                     EnforcementTypes = new[] {"INF", "TOA", "OTR"},
                     Snc = true
                 }, sevenFiveTwenty.GetWellsWithEnforcements, datas);
-                InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viia_2b", new QueryParams
+//                InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viia_2b", new QueryParams
+//                {
+//                    Snc = true
+//                }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
+                InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viib_2b", new QueryParams
                 {
+                    StartDate = options.StartDate,
                     Snc = true
                 }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
-//                    InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viib_2b", new QueryParams
-//                    {
-//                        StartDate = options.StartDate,
-//                        Snc = true
-//                    }, sevenFiveTwenty.GetWellsReturnedToCompliance, datas);
                 InputMonadGenerator.CreateMonadFor(new[] {1, 3, 4, 5}, "Viii_2b", new QueryParams
                 {
                     Snc = true
