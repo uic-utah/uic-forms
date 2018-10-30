@@ -753,16 +753,18 @@ namespace uic_forms.services
             });
         }
 
-        public string GetWellClass(Guid wellid)
+        public string GetWellSubClass(Guid wellid)
         {
-            const string query = "SELECT WellClass " +
+            const string query = "SELECT WellSubClass " +
                                  "FROM Well_view " +
                                  "WHERE GUID = @wellId";
 
-            return _connection.QueryFirstOrDefault<string>(query, new
+            var code = _connection.QueryFirstOrDefault<string>(query, new
             {
                 wellid
             });
+
+            return _subClassLookup.Single(x => x.Code == code).Value;
         }
 
         public Contact GetContactAddress(Guid wellId)

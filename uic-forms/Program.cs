@@ -672,7 +672,7 @@ namespace uic_forms
                             "OV"
                         };
 
-                        var value = sevenFiveTwenty.GetWellClass(violation.WellId);
+                        var value = sevenFiveTwenty.GetWellSubClass(violation.WellId);
                         var contact = sevenFiveTwenty.GetContactAddress(violation.WellId);
 
                         form["WCT"] = value;
