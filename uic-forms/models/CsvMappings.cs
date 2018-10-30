@@ -52,7 +52,7 @@ namespace uic_forms.models
             Map(x => x.Vib7).Name("PipeSev_EA").Constant("0").NameIndex(++i);
             Map(x => x.Vib8).Name("Other_EA").NameIndex(++i);
             Map(x => x.Other_EA_Spec).Constant(null).NameIndex(++i);
-            Map(x => x.Viia).Name("WellRTC").NameIndex(++i);
+            Map(x => x.Viib).Name("WellRTC").NameIndex(++i);
             Map(x => x.Viii).Name("Contamination").NameIndex(++i);
             Map(x => x.Ix).Name("MITResolved").NameIndex(++i);
             Map(x => x.Remark75202A).Constant(null).NameIndex(++i);

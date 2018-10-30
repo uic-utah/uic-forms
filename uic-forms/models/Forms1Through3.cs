@@ -56,7 +56,7 @@ namespace uic_forms.models
         public string Vib7 { get; set; }
         public string Vib8 { get; set; }
         public string Other_EA_Spec { get; set; }
-        public string Viia { get; set; }
+        public string Viib { get; set; }
         public string Viii { get; set; }
         public string Ix { get; set; }
         public string Remark75202A { get; set; }
