@@ -33,7 +33,7 @@ namespace uic_forms.models
 
             if (count > 0)
             {
-                Program.Logger.Write("Narrative for {0}", Id);
+                Program.Logger.Write("Narrative for {0}", GetId(Id));
             }
             else
             {
@@ -57,6 +57,13 @@ namespace uic_forms.models
             Result = count.ToString();
 
             return Result;
+        }
+
+        private string GetId(string id)
+        {
+            services.FieldMapper.Lookup.TryGetValue(id, out var value);
+
+            return value ?? id;
         }
     }
 
