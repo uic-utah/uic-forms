@@ -22,7 +22,7 @@ namespace uic_forms.models
             Map(x => x.Vicn).Name("AreaWellNew").NameIndex(++i);
             Map(x => x.Vice).Name("AreaWellExist").NameIndex(++i);
             Map(x => x.Vid).Name("PermitDenied").NameIndex(++i);
-            Map(x => x.Vie).Name("PermitMod").Constant("0").NameIndex(++i);
+            Map(x => x.Vie).Name("PermitMod").NameIndex(++i);
             Map(x => x.RAIIReview).Name("RAIIReview").Constant("0").NameIndex(++i);
             Map(x => x.RAIIDeficient).Name("RAIIDeficient").Constant("0").NameIndex(++i);
             Map(x => x.Viiiaa).Name("AORWellAbandon").NameIndex(++i);
