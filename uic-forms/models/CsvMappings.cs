@@ -167,14 +167,14 @@ namespace uic_forms.models
             Map(x => x.Tribe).Constant(null).NameIndex(4);
             Map(x => x.ClassIh).Name("ClassIH").NameIndex(5);
             Map(x => x.ClassIOther).Name("ClassIOther").NameIndex(6);
-            Map(x => x.ClassIid).Name("ClassIID").Constant("0").NameIndex(7);
-            Map(x => x.ClassIir).Name("ClassIIR").Constant("0").NameIndex(8);
-            Map(x => x.ClassIiOther).Name("ClassIIOther").Constant("0").NameIndex(9);
+            Map(x => x.ClassIid).Name("ClassIID").Constant("").NameIndex(7);
+            Map(x => x.ClassIir).Name("ClassIIR").Constant("").NameIndex(8);
+            Map(x => x.ClassIiOther).Name("ClassIIOther").Constant("").NameIndex(9);
             Map(x => x.ClassIiiWells).Name("ClassIIIWells").NameIndex(10);
             Map(x => x.ClassIiiSites).Name("ClassIIISites").NameIndex(11);
             Map(x => x.ClassIvWells).Name("ClassIVWells").NameIndex(12);
             Map(x => x.ClassVWells).Name("ClassVWells").NameIndex(13);
-            Map(x => x.ClassViWells).Name("ClassVIWells").Constant("0").NameIndex(14);
+            Map(x => x.ClassViWells).Name("ClassVIWells").Constant("").NameIndex(14);
 
         }
     }
