@@ -53,7 +53,7 @@ namespace uic_forms
       Logger.Write("Connecting to UDEQ...");
       using (var sevenFiveTwenty = new Querier(options))
       {
-        var output = $"{options.OutputPath}\\7520.{DateTime.Now:MM-dd-yyy}.csv";
+        var output = Path.Combine(options.OutputPath, $"7520.{DateTime.Now:MM-dd-yyy}.csv");
 
         var datas = new List<InputMonad>();
 
@@ -516,7 +516,7 @@ namespace uic_forms
           csv.WriteRecords(new[] { class1, class3, class4, class5 });
         }
 
-        output = $"{options.OutputPath}\\7520-4.{DateTime.Now:MM-dd-yyy}.csv";
+        output = Path.Combine(options.OutputPath, $"7520-4.{DateTime.Now:MM-dd-yyy}.csv");
         using (var writer = new StreamWriter(File.Create(output)))
         using (var csv = new CsvWriter(writer))
         {
@@ -719,7 +719,7 @@ namespace uic_forms
         }
 
         #region summary form
-        output = $"{options.OutputPath}\\7520-Inventory.{DateTime.Now:MM-dd-yyy}.csv";
+        output = Path.Combine(options.OutputPath, $"7520-Inventory.{DateTime.Now:MM-dd-yyy}.csv");
         using (var writer = new StreamWriter(File.Create(output)))
         using (var csv = new CsvWriter(writer))
         {

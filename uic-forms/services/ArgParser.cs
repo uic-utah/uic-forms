@@ -71,7 +71,7 @@ namespace uic_forms.services
       });
 
       Inquirer.Prompt(Question.Input("Where would you like the csv saved")
-                              .WithDefaultValue(@"C:\temp"))
+                              .WithDefaultValue(Path.GetTempPath()))
               .Then(path =>
               {
                 if (new DirectoryInfo(path).Exists)
