@@ -10,8 +10,4 @@
     <PackageTags>Inquirer</PackageTags>
     <Copyright>Copyright 2017</Copyright>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" PrivateAssets="All" />
-  </ItemGroup>
 </Project>
