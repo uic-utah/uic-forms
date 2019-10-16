@@ -821,12 +821,10 @@ namespace uic_forms.services
     ContactType 
 FROM 
     UICContact_evw 
-    INNER JOIN UICFacilityToContact_evw ON UICFacilityToContact_evw.ContactGUID = UICContact_evw.GUID 
-    INNER JOIN UICFacility_evw ON UICFacilityToContact_evw.FacilityGUID = UICFacility_evw.GUID 
 WHERE 
     ContactType in (1, 3, 2) 
 AND
-    UICFacility_evw.GUID = @facilityId";
+    ContactType.Facility_FK = @facilityId";
 
             var facilityId = GetFacilityFromWell(wellId);
 
