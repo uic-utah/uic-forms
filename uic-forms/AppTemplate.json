@@ -1,0 +1,7 @@
+﻿{
+  "ConnectionStrings": {
+    "local": "Data Source=(local);Initial Catalog=uic;Persist Security Info=True;Trusted_Connection=True;Connect Timeout=1",
+    "dev": "",
+    "prod-pw": ""
+  }
+}
