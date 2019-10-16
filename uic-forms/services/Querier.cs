@@ -31,7 +31,7 @@ namespace uic_forms.services
             {
                 _connection.Open();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("Could not connect to database");
             }

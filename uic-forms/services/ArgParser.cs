@@ -15,24 +15,24 @@ namespace uic_forms.services
       Inquirer.Prompt(Question.List("Which database would you like to report from",
           new[] { "Production", "Staging" })).Then(configuration =>
        {
-        switch (configuration)
-        {
-          case "Production":
-            {
-              options.Source = "udeq.agrc.utah.gov";
-              options.Password = "prod-pw";
-              break;
-            }
-          case "Staging":
-            {
-              options.Source = "udeq.agrc.utah.gov\\mspd14";
-              options.Password = "stage-pw";
-              break;
-            }
-          default:
-            throw new Exception("how did I get here?");
-        }
-      });
+         switch (configuration)
+         {
+           case "Production":
+             {
+               options.Source = "udeq.agrc.utah.gov";
+               options.Password = "prod-pw";
+               break;
+             }
+           case "Staging":
+             {
+               options.Source = "udeq.agrc.utah.gov\\mspd14";
+               options.Password = "stage-pw";
+               break;
+             }
+           default:
+             throw new Exception("how did I get here?");
+         }
+       });
 
       Inquirer.Prompt(Question.Input<int>("Reporting start year")
                               .WithDefaultValue(DateTime.Now.Year))
@@ -93,14 +93,14 @@ namespace uic_forms.services
                                               .WithDefaultValue(true))
                               .Then(yes =>
                               {
-                            if (!yes)
-                            {
-                              return;
-                            }
+                                if (!yes)
+                                {
+                                  return;
+                                }
 
-                            Directory.CreateDirectory(path);
-                            options.OutputPath = path;
-                          });
+                                Directory.CreateDirectory(path);
+                                options.OutputPath = path;
+                              });
               });
 
       Inquirer.Prompt(Question.Confirm("Would you like to see the debug output")

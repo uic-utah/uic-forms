@@ -5,9 +5,9 @@ namespace uic_forms.models
 {
     internal class Forms1Through3 : Form
     {
-        public string OtherLeakEvalSpec;
-        public string OtherFluidTestSpec;
-        public string RemedialOtherSpec;
+        public string OtherLeakEvalSpec = string.Empty;
+        public string OtherFluidTestSpec = string.Empty;
+        public string RemedialOtherSpec = string.Empty;
 
         public Forms1Through3(IReadOnlyList<InputMonad> datas, Logger logger)
         {
