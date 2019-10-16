@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\libs\Inquirer.cs\Source\Inquirer\InquirerCS.csproj" />
+    <ProjectReference Include="..\libs\Inquirer.cs\Inquirer\InquirerCS.csproj" />
   </ItemGroup>
 
   <ItemGroup>

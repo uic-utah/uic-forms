@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Inquirer.cs</PackageId>
+    <Authors>Andrzej Gołaszewski</Authors>
+    <PackageProjectUrl>https://github.com/agolaszewski/Inquirer.cs</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/agolaszewski/Inquirer.cs.git</RepositoryUrl>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageDescription>Inquirer.cs provides the user interface and the inquiry session flow.</PackageDescription>
+    <PackageTags>Inquirer</PackageTags>
+    <Copyright>Copyright 2017</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
