@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
@@ -20,7 +19,7 @@ namespace uic_forms.services
         internal Querier(CliOptions options)
         {
             var config = new ConfigurationBuilder()
-                .AddJsonFile("src/App.json", false, true)
+                .AddJsonFile("App.json", false, true)
                 .Build();
 
             _startDate = options.StartDate;
@@ -383,15 +382,15 @@ namespace uic_forms.services
 
             return response.AsReadOnly();
         }
-
+        
         public IReadOnlyCollection<string> CalculatePercentResolved(QueryParams options)
         {
             const string query = @"SELECT Violation_view.OBJECTID as esriid,
                             Violation_view.ViolationDate,
                             Violation_view.ReturnToComplianceDate
-                        FROM Violation_view
-                        INNER JOIN Well_view
-                            ON Violation_view.Well_FK = Well_view.GUID
+                        FROM Violation_view 
+                        INNER JOIN Well_view 
+                            ON Violation_view.Well_FK = Well_view.GUID 
                         WHERE Well_view.WellClass = @wellClass
                             AND Violation_view.ViolationType = 'MI'";
 
@@ -403,16 +402,16 @@ namespace uic_forms.services
             var a = 0M;
             var b = 0M;
 
-            // WellClass code = '1'.
-            // A = Number of Violations where in the UICViolation tbl,
-            // ViolationType code = 'MI' AND
-            // ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate
+            // WellClass code = '1'.   
+            // A = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI' AND 
+            // ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate  
 
-            // B = Number of Violations where in the UICViolation tbl,
-            // ViolationType code = 'MI'
-            // AND ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate
-            // AND ReturnToComplianceDate is between (inclusive) ReportingFromDate and ReportingToDate
-            // AND ReturnToComplianceDate - ViolationDate for ViolationType code = 'MI' is less than 90 days.
+            // B = Number of Violations where in the UICViolation tbl, 
+            // ViolationType code = 'MI' 
+            // AND ViolationDate is between (ReportingFromDate - 90 days) and ReportingToDate 
+            // AND ReturnToComplianceDate is between (inclusive) ReportingFromDate and ReportingToDate 
+            // AND ReturnToComplianceDate - ViolationDate for ViolationType code = 'MI' is less than 90 days.   
 
             // Percentage = 100 x (B/A)
 
@@ -455,11 +454,11 @@ namespace uic_forms.services
         public IReadOnlyCollection<string> SncViolations(QueryParams options)
         {
             const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
-                                 FROM Well_view
-                                 INNER JOIN Violation_view
-                                    ON Violation_view.Well_FK = Well_view.GUID
-                                 WHERE Well_view.WellClass = @wellClass
-                                    AND Violation_view.SignificantNonCompliance = @compliance
+                                 FROM Well_view 
+                                 INNER JOIN Violation_view 
+                                    ON Violation_view.Well_FK = Well_view.GUID 
+                                 WHERE Well_view.WellClass = @wellClass 
+                                    AND Violation_view.SignificantNonCompliance = @compliance 
                                     AND Violation_view.ViolationDate >= @start";
 
             var result = _connection.Query<NarrativeMetadata>(query, new
@@ -482,15 +481,15 @@ namespace uic_forms.services
         {
             const string query = @"SELECT Enforcement_view.EnforcementDate,
                 Violation_view.objectid as esriid, Well_view.facility_FK as FacilityId, UICWellOperatingStatus_evw.guid as ItemId
-            FROM
+            FROM 
                 Violation_view
-            INNER JOIN Well_view
+            INNER JOIN Well_view 
                 ON Well_view.GUID = Violation_view.Well_FK
-            INNER JOIN UICWellOperatingStatus_evw
+            INNER JOIN UICWellOperatingStatus_evw 
                 ON UICWellOperatingStatus_evw.Well_FK = Well_view.GUID
-            LEFT OUTER JOIN UICViolationToEnforcement_evw
+            LEFT OUTER JOIN UICViolationToEnforcement_evw 
                 ON UICViolationToEnforcement_evw.ViolationGUID = Violation_view.GUID
-            LEFT OUTER JOIN Enforcement_view
+            LEFT OUTER JOIN Enforcement_view 
                 ON UICViolationToEnforcement_evw.EnforcementGUID = Enforcement_view.GUID
             WHERE Well_view.WellClass = @wellClass
                 AND Violation_view.SignificantNonCompliance = @yes
@@ -518,10 +517,10 @@ namespace uic_forms.services
         public IReadOnlyCollection<string> GetWellsInspected(QueryParams options)
         {
             const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
-                                    FROM Well_view
-                                 INNER JOIN Inspection_view
-                                    ON Well_view.GUID = Inspection_view.Well_FK
-                                 WHERE Well_view.WellClass = @wellClass
+                                    FROM Well_view 
+                                 INNER JOIN Inspection_view 
+                                    ON Well_view.GUID = Inspection_view.Well_FK 
+                                 WHERE Well_view.WellClass = @wellClass 
                                     AND Inspection_view.InspectionDate >= @start
                                     AND Inspection_view.Facility_FK is NULL";
 
@@ -549,10 +548,10 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
 
             var query = @"SELECT DISTINCT(Inspection_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
-                            FROM Inspection_view
-                        INNER JOIN Well_view
-                            ON Well_view.GUID = Inspection_view.Well_FK
-                        WHERE Well_view.WellClass = @wellClass
+                            FROM Inspection_view 
+                        INNER JOIN Well_view 
+                            ON Well_view.GUID = Inspection_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
                             AND Inspection_view.InspectionDate >= @start ";
 
             if (types.Length == 1)
@@ -589,8 +588,8 @@ namespace uic_forms.services
             var query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view
                         INNER JOIN Mit_view
-                            ON Well_view.GUID = Mit_view.Well_FK
-                        WHERE Well_view.WellClass = @wellClass
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
                             AND Mit_view.MITDate >= @start ";
 
             if (types.Length == 1)
@@ -638,8 +637,8 @@ namespace uic_forms.services
             var query = @"SELECT DISTINCT(Mit_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
                             FROM Well_view
                         INNER JOIN Mit_view
-                            ON Well_view.GUID = Mit_view.Well_FK
-                        WHERE Well_view.WellClass = @wellClass
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
                             AND Mit_view.MITDate >= @start ";
 
             if (types.Length == 1)
@@ -678,10 +677,10 @@ namespace uic_forms.services
         public IReadOnlyCollection<string> GetRemedialWells(QueryParams options)
         {
             const string query = @"SELECT DISTINCT(Well_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
-                            FROM Well_view
+                            FROM Well_view 
                         INNER JOIN Mit_view
-                            ON Well_view.GUID = Mit_view.Well_FK
-                        WHERE Well_view.WellClass = @wellClass
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
                             AND Mit_view.MITRemActDate >= @start ";
 
             var result = _connection.Query<NarrativeMetadata>(query, new
@@ -708,10 +707,10 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
 
             var query = @"SELECT DISTINCT(Mit_view.Guid) as ItemId, Well_view.Facility_FK as FacilityId
-                            FROM Well_view
+                            FROM Well_view 
                         INNER JOIN Mit_view
-                            ON Well_view.GUID = Mit_view.Well_FK
-                        WHERE Well_view.WellClass = @wellClass
+                            ON Well_view.GUID = Mit_view.Well_FK 
+                        WHERE Well_view.WellClass = @wellClass 
                             AND Mit_view.MITRemActDate >= @start ";
 
             if (types.Length == 1)
@@ -738,15 +737,15 @@ namespace uic_forms.services
 
         public IEnumerable<QueryModel> GetViolations()
         {
-            const string query = @"SELECT
+            const string query = @"SELECT 
             Violation_view.GUID as Id,
             Violation_view.OBJECTID as esriid,
             Violation_view.Well_FK as wellid,
-            Violation_view.ViolationDate,
-            Violation_view.SignificantNonCompliance,
-            Violation_view.ReturnToComplianceDate,
+            Violation_view.ViolationDate, 
+            Violation_view.SignificantNonCompliance, 
+            Violation_view.ReturnToComplianceDate, 
             Enforcement_view.Guid as EnforcementId,
-            Enforcement_view.EnforcementDate,
+            Enforcement_view.EnforcementDate, 
             Enforcement_view.EnforcementType
                 FROM
             Enforcement_view
@@ -812,20 +811,22 @@ namespace uic_forms.services
 
         public Contact GetContactAddress(Guid wellId)
         {
-            const string query = @"SELECT
-    ContactName,
-    ContactMailAddress,
-    ContactMailCity,
-    ContactMailState,
-    ZipCode5,
-    ZipCode4,
-    ContactType
-FROM
-    UICContact_evw
-WHERE
-    ContactType in (1, 3, 2)
+            const string query = @"SELECT 
+    ContactName, 
+    ContactMailAddress, 
+    ContactMailCity, 
+    ContactMailState, 
+    ZipCode5, 
+    ZipCode4, 
+    ContactType 
+FROM 
+    UICContact_evw 
+    INNER JOIN UICFacilityToContact_evw ON UICFacilityToContact_evw.ContactGUID = UICContact_evw.GUID 
+    INNER JOIN UICFacility_evw ON UICFacilityToContact_evw.FacilityGUID = UICFacility_evw.GUID 
+WHERE 
+    ContactType in (1, 3, 2) 
 AND
-    UICContact_evw.Facility_FK = @facilityId";
+    UICFacility_evw.GUID = @facilityId";
 
             var facilityId = GetFacilityFromWell(wellId);
 
@@ -858,11 +859,11 @@ AND
 FROM
 	sde.GDB_ITEMS AS items INNER JOIN sde.GDB_ITEMTYPES AS itemtypes ON
 		items.Type = itemtypes.UUID
-CROSS APPLY
+CROSS APPLY	
 	items.Definition.nodes('/GPCodedValueDomain2/CodedValues/CodedValue') AS CodedValues(coded_value)
-CROSS APPLY
+CROSS APPLY	
 	items.Definition.nodes('/GPCodedValueDomain2') AS CVDomains(cv_domain)
-WHERE
+WHERE 
 	itemtypes.Name = 'Coded Value Domain'";
 
             var domains = _connection.Query<DomainModel>(query);
@@ -873,12 +874,12 @@ WHERE
 
         public string GetWellId(Guid wellId)
         {
-            var well = _connection.QueryFirstOrDefault<WellId>(@"SELECT
+            var well = _connection.QueryFirstOrDefault<WellId>(@"SELECT 
             WellId as Id,
             AuthorizationID,
             AuthorizationType as code
                 FROM
-            Well_view
+            Well_view 
                 FULL JOIN Permit_view ON Permit_view.GUID = Well_view.Authorization_FK
             WHERE
                 Well_view.GUID = @wellId", new
@@ -970,98 +971,98 @@ WHERE
             var inventory = new FormInventory
             {
                 FedFiscalYr = fiscalYear,
-                ClassIh = _connection.QueryFirstOrDefault<string>(@"SELECT
+                ClassIh = _connection.QueryFirstOrDefault<string>(@"SELECT 
     COUNT(
         DISTINCT(Well_view.GUID)
-    )
-FROM
-    Well_view
-    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
-WHERE
-    Well_view.WellSubClass = 1001
-    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
+WHERE 
+    Well_view.WellSubClass = 1001 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
     AND Well_view.GUID NOT IN (
-        SELECT
-            UICWellOperatingStatus_evw.Well_FK
-        FROM
-            UICWellOperatingStatus_evw
-        WHERE
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
             UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
     )"),
-                ClassIOther = _connection.QueryFirstOrDefault<string>(@"SELECT
+                ClassIOther = _connection.QueryFirstOrDefault<string>(@"SELECT 
     COUNT(
         DISTINCT(Well_view.GUID)
-    )
-FROM
-    Well_view
-    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
-WHERE
-    Well_view.WellSubClass in (1000, 1002, 1003, 1999)
-    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
+WHERE 
+    Well_view.WellSubClass in (1000, 1002, 1003, 1999) 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
     AND Well_view.GUID NOT IN (
-        SELECT
-            UICWellOperatingStatus_evw.Well_FK
-        FROM
-            UICWellOperatingStatus_evw
-        WHERE
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
             UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
     )"),
-                ClassIiiWells = _connection.QueryFirstOrDefault<string>(@"SELECT
+                ClassIiiWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
     COUNT(
         DISTINCT(Well_view.GUID)
-    )
-FROM
-    Well_view
-    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK
-WHERE
-    Well_view.WellClass = 3
-    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA')
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON Well_view.GUID = UICWellOperatingStatus_evw.Well_FK 
+WHERE 
+    Well_view.WellClass = 3 
+    AND UICWELLOperatingStatus_evw.OperatingStatusType in ('PW', 'UC', 'AC', 'TA') 
     AND Well_view.GUID NOT IN (
-        SELECT
-            UICWellOperatingStatus_evw.Well_FK
-        FROM
-            UICWellOperatingStatus_evw
-        WHERE
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
             UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
     )"),
                 ClassIiiSites = _connection.QueryFirstOrDefault<string>(@"SELECT COUNT(DISTINCT(Well_view.facility_FK))
 	FROM Well_view
 WHERE
 	Well_view.WellClass = 3"),
-                ClassIvWells = _connection.QueryFirstOrDefault<string>(@"SELECT
+                ClassIvWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
     COUNT(
         DISTINCT(Well_view.GUID)
-    )
-FROM
-    Well_view
-    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid
-WHERE
-    WellClass = 4
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid 
+WHERE 
+    WellClass = 4 
     AND Well_view.GUID NOT IN (
-        SELECT
-            UICWellOperatingStatus_evw.Well_FK
-        FROM
-            UICWellOperatingStatus_evw
-        WHERE
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
             UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
-    )
+    ) 
     AND UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'PR', 'UC', 'AC', 'TA')"),
-                ClassVWells = _connection.QueryFirstOrDefault<string>(@"SELECT
+                ClassVWells = _connection.QueryFirstOrDefault<string>(@"SELECT 
     COUNT(
         DISTINCT(Well_view.GUID)
-    )
-FROM
-    Well_view
-    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid
-WHERE
-    WellClass = 5
-    AND UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'PR', 'UC', 'AC', 'TA')
+    ) 
+FROM 
+    Well_view 
+    INNER JOIN UICWellOperatingStatus_evw ON UICWellOperatingStatus_evw.Well_FK = Well_view.Guid 
+WHERE 
+    WellClass = 5 
+    AND UICWellOperatingStatus_evw.OperatingStatusType in ('PW', 'PR', 'UC', 'AC', 'TA') 
     AND Well_view.GUID NOT IN (
-        SELECT
-            UICWellOperatingStatus_evw.Well_FK
-        FROM
-            UICWellOperatingStatus_evw
-        WHERE
+        SELECT 
+            UICWellOperatingStatus_evw.Well_FK 
+        FROM 
+            UICWellOperatingStatus_evw 
+        WHERE 
             UICWellOperatingStatus_evw.OperatingStatusType in ('PA', 'AN')
     )")
             };
