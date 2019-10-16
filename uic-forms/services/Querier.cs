@@ -26,8 +26,6 @@ namespace uic_forms.services
             _startDate = options.StartDate;
             _endDate = options.EndDate;
 
-
-
             _connection = new SqlConnection(config.GetConnectionString("local"));
 
             try
