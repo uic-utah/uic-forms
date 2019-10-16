@@ -2,9 +2,9 @@
 
 namespace uic_forms.services
 {
-    public static class FieldMapper
-    {
-        public static Dictionary<string, string> Lookup = new Dictionary<string, string>
+  public static class FieldMapper
+  {
+    public static Dictionary<string, string> Lookup = new Dictionary<string, string>
         {
             {"V", "PermitApps"},
             {"Vian", "IndPermitNew"},
@@ -106,5 +106,5 @@ namespace uic_forms.services
             {"RemedialOtherSpec", "RemedialOther_Spec"},
             {"Remark75203", "Remark75203"}
         };
-    }
+  }
 }
