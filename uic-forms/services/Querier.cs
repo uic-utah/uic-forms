@@ -25,7 +25,7 @@ namespace uic_forms.services
             _startDate = options.StartDate;
             _endDate = options.EndDate;
 
-            _connection = new SqlConnection(config.GetConnectionString("dev-migrated"));
+            _connection = new SqlConnection(config.GetConnectionString(options.Source));
 
             try
             {

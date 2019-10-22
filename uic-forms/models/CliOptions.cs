@@ -9,7 +9,6 @@
         public bool Verbose { get; set; }
         public string OutputPath { get; set; }
         public string Source { get; set; }
-        public string Password { get; set; }
         public string Quarter { get; set; }
     }
 }
