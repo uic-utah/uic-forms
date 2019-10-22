@@ -26,9 +26,8 @@ namespace uic_forms
         Quarter = "QSomething",
         StartDate = new DateTime(2017, 10, 1),
         OutputPath = Path.GetTempPath(),
-        Source = "udeq.agrc.utah.gov\\mspd14",
-        Verbose = true,
-        Password = "stage-pw"
+        Source = "dev-migrated",
+        Verbose = true
       };
 #endif
 
