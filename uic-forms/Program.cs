@@ -44,6 +44,7 @@ namespace uic_forms
 
       Logger = new Logger(options.Verbose, options.OutputPath);
       Logger.AlwaysWrite("Version {version}", Assembly.GetExecutingAssembly().GetName().Version);
+      Logger.AlwaysWrite("Reporting to: {source}", options.OutputPath);
       var start = Stopwatch.StartNew();
 
       Logger.AlwaysWrite("Starting: {0}", DateTime.Now.ToString("s"));
