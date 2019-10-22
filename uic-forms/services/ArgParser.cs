@@ -13,7 +13,7 @@ namespace uic_forms.services
       var options = new CliOptions();
 
       Inquirer.Prompt(Question.List("Which database would you like to report from",
-          new[] { "Production", "Staging" })).Then(configuration =>
+          new[] { "Production", "Staging", "Migrated" })).Then(configuration =>
        {
          switch (configuration)
          {
@@ -25,6 +25,11 @@ namespace uic_forms.services
            case "Staging":
              {
                options.Source = "stage";
+               break;
+             }
+           case "Migrated":
+             {
+               options.Source = "dev-migrated";
                break;
              }
            default:
