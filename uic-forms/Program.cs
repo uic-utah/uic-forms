@@ -26,7 +26,7 @@ namespace uic_forms
         Quarter = "QSomething",
         StartDate = new DateTime(2017, 10, 1),
         OutputPath = Path.GetTempPath(),
-        Source = "dev-migrated",
+        Source = "dev",
         Verbose = true
       };
 #endif
