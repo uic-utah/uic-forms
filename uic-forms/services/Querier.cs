@@ -184,12 +184,14 @@ namespace uic_forms.services
             vars.wellClass = options.WellClass;
             vars.end = _endDate;
 
-            var query = @"SELECT DISTINCT(UICArtPen_evw.Guid) as ItemId, UICWell_evw.Facility_FK as FacilityId
-               FROM 
-                   UICArtPen_evw 
-               LEFT OUTER JOIN UICWell_evw 
-                   ON UICArtPen_evw.GUID = UICWell_evw.AOR_FK 
-               WHERE 
+            var query = @"SELECT DISTINCT UICArtPen_evw.Guid as ItemId, UICWell_evw.Facility_FK as FacilityId
+                FROM 
+                  UICArtPen_evw
+                JOIN AreaOfReviewToArtPen_evw
+                  ON AreaOfReviewToArtPen_evw.ArtPen_FK = UICArtPen_evw.GUID
+                JOIN UICWell_evw
+                  ON UICWell_evw.AOR_FK = AreaOfReviewToArtPen_evw.AOR_FK
+                WHERE
                   UICWell_evw.wellClass = @wellClass ";
 
             if (options.CaType > 0)
@@ -903,7 +905,7 @@ WHERE
                 violationId
             });
 
-            void SetValueIfExists(string field, bool value, Dictionary<string, bool> dict)
+            static void SetValueIfExists(string field, bool value, Dictionary<string, bool> dict)
             {
                 if (dict.ContainsKey(field))
                 {
