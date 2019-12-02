@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build:debug",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/uic-forms/bin/Debug/netcoreapp2.2/uic-forms.dll",
+            "program": "${workspaceFolder}/uic-forms/bin/Debug/netcoreapp3.0/uic-forms.dll",
             "args": [],
             "cwd": "${workspaceFolder}/uic-forms",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -23,7 +23,7 @@
             "request": "launch",
             "preLaunchTask": "build:release",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/uic-forms/bin/Release/netcoreapp2.2/uic-forms.dll",
+            "program": "${workspaceFolder}/uic-forms/bin/Release/netcoreapp3.0/uic-forms.dll",
             "args": [],
             "cwd": "${workspaceFolder}/uic-forms",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
