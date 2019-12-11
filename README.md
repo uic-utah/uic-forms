@@ -6,4 +6,4 @@
 
 _from the `uic-forms/uic-forms` directory_
 
-`dotnet publish --runtime win-x64 -c Release /p:PublishSingleFile=true /p:DebugType=None /p:Version="3.0.4"`
+`dotnet publish --runtime win-x64 -c Release /p:PublishSingleFile=true /p:DebugType=None /p:Version="3.0.5"`
