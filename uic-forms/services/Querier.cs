@@ -826,7 +826,7 @@ FROM
 WHERE 
     ContactType in (1, 3, 2) 
 AND
-    ContactType.Facility_FK = @facilityId";
+    Facility_FK = @facilityId";
 
             var facilityId = GetFacilityFromWell(wellId);
 
