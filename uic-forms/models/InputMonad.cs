@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace uic_forms.models
 {
@@ -26,6 +27,8 @@ namespace uic_forms.models
 
         public string Result { get; private set; }
 
+        public IReadOnlyCollection<Guid> ItemIds { get; private set; } = new List<Guid>();
+
         public string Query()
         {
             var result = _query(_params);
@@ -42,10 +45,20 @@ namespace uic_forms.models
                 return Result;
             }
 
+            var itemIds = new List<Guid>();
             foreach (var item in result)
             {
                 Program.Logger.Write(item);
+                var itemId = GetItemId(item);
+                if (itemId == Guid.Empty)
+                {
+                    continue;
+                }
+
+                itemIds.Add(itemId);
             }
+
+            ItemIds = itemIds.AsReadOnly();
 
             if (_returnFirstValue)
             {
@@ -57,6 +70,17 @@ namespace uic_forms.models
             Result = count.ToString();
 
             return Result;
+        }
+
+        private Guid GetItemId(string metadata) 
+        {
+            var match = Regex.Match(metadata, "guid='(.+?)'", RegexOptions.IgnoreCase);
+            if (match.Groups.Count < 2) 
+            {
+                return Guid.Empty;
+            }
+
+            return Guid.Parse(match.Groups[1].Value);
         }
 
         private string GetId(string id)
