@@ -366,8 +366,9 @@ namespace uic_forms
         {
           InspectionType = new[] { "RP", "OT", "NW", "FI" }
         }, sevenFiveTwenty.GetInspections, datas);
-        InputMonadGenerator.CreateMonadFor(new[] { 1, 3, 4, 5 }, "Via_3b", new QueryParams(),
-                                           sevenFiveTwenty.GetMechIntegrities, datas);
+        // Via 3b is calculated from the results of other monads in the form models
+        // InputMonadGenerator.CreateMonadFor(new[] { 1, 3, 4, 5 }, "Via_3b", new QueryParams(),
+        //                                    sevenFiveTwenty.GetMechIntegrities, datas);
         InputMonadGenerator.CreateMonadFor(new[] { 1, 3, 4, 5 }, "Vic1p_3b", new QueryParams
         {
           MitTypes = new[] { "AP" },
