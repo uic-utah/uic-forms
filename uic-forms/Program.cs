@@ -22,9 +22,9 @@ namespace uic_forms
 #else
       var options = new CliOptions
       {
-        EndDate = new DateTime(2018, 10, 31),
+        EndDate = new DateTime(2020, 10, 31),
         Quarter = "QSomething",
-        StartDate = new DateTime(2017, 10, 1),
+        StartDate = new DateTime(2019, 10, 1),
         OutputPath = Path.GetTempPath(),
         Source = "dev",
         Verbose = true
