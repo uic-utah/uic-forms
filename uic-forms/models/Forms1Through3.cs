@@ -18,13 +18,18 @@ namespace uic_forms.models
                 this[inputMonad.Id] = inputMonad.Result;
             }
 
+            var wellClass = datas.FirstOrDefault().WellClass;
             var vics = new[] { "Vic1p_3b", "Vic1f_3b", "Vic2p_3b", "Vic2f_3b", "Vic3p_3b", "Vic3f_3b", "Vic4p_3b", "Vic4f_3b" };
             var vids = new[] { "Vid1p_3b", "Vid1f_3b", "Vid2p_3b", "Vid2f_3b", "Vid3p_3b", "Vid3f_3b", "Vid4p_3b", "Vid4f_3b" };
 
             var vicItems = datas.Where(y => vics.Contains(y.Id)).SelectMany(x => x.ItemIds);
             var vidItems = datas.Where(y => vids.Contains(y.Id)).SelectMany(x => x.ItemIds);
 
-            Via_3b = vicItems.Intersect(vidItems).Count().ToString();
+            var intersection = vicItems.Intersect(vidItems).Count().ToString();
+
+            Logger.Write("Via_3b: {0} Well class: {1}", intersection, wellClass);
+
+            Via_3b = intersection;
         }   
 
         public string V { get; set; }
