@@ -74,7 +74,7 @@ namespace uic_forms.models
 
         private Guid GetItemId(string metadata) 
         {
-            var match = Regex.Match(metadata, "guid='(.+?)'", RegexOptions.IgnoreCase);
+            var match = Regex.Match(metadata, "uicwell: guid='(.+?)'", RegexOptions.IgnoreCase);
             if (match.Groups.Count < 2) 
             {
                 return Guid.Empty;

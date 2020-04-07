@@ -587,7 +587,7 @@ namespace uic_forms.services
             vars.start = _startDate;
             vars.wellClass = options.WellClass;
 
-            var query = @"SELECT DISTINCT(UICMIT_evw.Guid) as ItemId, UICWell_evw.Facility_FK as FacilityId
+            var query = @"SELECT DISTINCT(UICMIT_evw.Guid) as ItemId, UICWell_evw.Facility_FK as FacilityId, UICWell_evw.GUID as WellGuid
                             FROM UICWell_evw
                         INNER JOIN UICMIT_evw
                             ON UICWell_evw.GUID = UICMIT_evw.Well_FK 
@@ -621,7 +621,7 @@ namespace uic_forms.services
             var response = new List<string>();
             foreach (var metadata in result)
             {
-                response.Add($"UICMIT: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
+                response.Add($"UICMIT: GUID='{metadata.ItemId:B}' UICWELL: GUID='{metadata.WellGuid:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
             }
 
             return response.AsReadOnly();
@@ -1025,6 +1025,7 @@ WHERE
         {
             public Guid ItemId { get; set; }
             public Guid FacilityId { get; set; }
+            public Guid WellGuid { get; set; }
         }
     }
 }
