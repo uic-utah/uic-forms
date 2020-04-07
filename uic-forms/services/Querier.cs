@@ -578,55 +578,6 @@ namespace uic_forms.services
             return response.AsReadOnly();
         }
 
-        public IReadOnlyCollection<string> GetMechIntegrities(QueryParams options)
-        {
-            var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
-            var results = options.MitResult as string[] ?? options.MitResult.ToArray();
-
-            dynamic vars = new ExpandoObject();
-            vars.start = _startDate;
-            vars.wellClass = options.WellClass;
-
-            var query = @"SELECT DISTINCT(UICWell_evw.Guid) as ItemId, UICWell_evw.Facility_FK as FacilityId
-                            FROM UICWell_evw
-                        INNER JOIN UICMIT_evw
-                            ON UICWell_evw.GUID = UICMIT_evw.Well_FK 
-                        WHERE UICWell_evw.WellClass = @wellClass 
-                            AND UICMIT_evw.MITDate >= @start ";
-
-            if (types.Length == 1)
-            {
-                query += "AND UICMIT_evw.MITType = @mitType ";
-                vars.mitType = types[0];
-            }
-            else if (types.Length > 1)
-            {
-                query += "AND UICMIT_evw.mitType in @mitType ";
-                vars.mitType = types;
-            }
-
-            if (results.Length == 1)
-            {
-                query += "AND UICMIT_evw.MITResult = @mitResult ";
-                vars.mitResult = results[0];
-            }
-            else if (results.Length > 1)
-            {
-                query += "AND UICMIT_evw.MITResult in @mitResult ";
-                vars.mitResult = results;
-            }
-
-            var result = _connection.Query<NarrativeMetadata>(query, (object) vars);
-
-            var response = new List<string>();
-            foreach (var metadata in result)
-            {
-                response.Add($"UICWell: GUID='{metadata.ItemId:B}' UICFACILITY: FacilityName='{_facilityLookup[metadata.FacilityId]}'");
-            }
-
-            return response.AsReadOnly();
-        }
-
         public IReadOnlyCollection<string> GetMechIntegrityWells(QueryParams options)
         {
             var types = options.MitTypes as string[] ?? options.MitTypes.ToArray();
